@@ -3,3 +3,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# VS Code Local History extension — never version this
+.history/
+**/.history/
