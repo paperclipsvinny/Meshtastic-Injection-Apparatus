@@ -7,3 +7,18 @@
 # VS Code Local History extension — never version this
 .history/
 **/.history/
+
+# Website build artifacts
+website/node_modules/
+website/_site/
+
+# KiCad backups / locks
+**/_restore_backup_*/
+**/*.lck
+**/*.kicad_prl
+**/fp-info-cache
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+*.swp
