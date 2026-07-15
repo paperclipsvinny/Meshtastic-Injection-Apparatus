@@ -1,0 +1,5 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "myfootprints") (type "KiCad") (uri "${KIPRJMOD}/myfootprints.pretty") (options "") (descr ""))
+	(lib (name "myfootprints") (type "KiCad") (uri "/home/paperclips/Desktop/Meshtastic-Injection-Apparatus/myfootprints.pretty") (options "") (descr ""))
+)

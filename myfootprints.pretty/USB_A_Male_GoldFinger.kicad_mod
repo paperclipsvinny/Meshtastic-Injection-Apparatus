@@ -1,0 +1,107 @@
+(footprint "USB_A_Male_GoldFinger"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at -0.61 -4.97 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "efbf96d5-e3dd-4b6b-8448-ada555e28287")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "USB_A_Male_GoldFinger"
+		(at 0 1 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "93395790-e0ce-456f-a809-c299fe1fc5c9")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "28d03ce9-10e1-487c-826a-5dbeb1097f2a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "9f27f63a-5afb-4c3f-a289-94f3af9b35b5")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start 1 -4.05)
+		(end 9.55 4.05)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "c368f161-8241-4f4b-99ff-d58d12d10f85")
+	)
+	(fp_text user "j1"
+		(at 0 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "f2129c2c-033d-4072-8903-3d46a6cfa0fe")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at 1.55 0)
+		(size 1 8)
+		(layers "F.Cu" "F.Mask")
+		(uuid "d5b45503-e851-400a-8946-b19a15f63992")
+	)
+	(pad "2" smd rect
+		(at 4 0)
+		(size 1 8)
+		(layers "F.Cu" "F.Mask")
+		(uuid "69d2b356-9635-48f1-9245-cb0918e4c535")
+	)
+	(pad "3" smd rect
+		(at 6.5 0)
+		(size 1 8)
+		(layers "F.Cu" "F.Mask")
+		(uuid "98db487b-ece5-4bee-9272-5af637350a4f")
+	)
+	(pad "4" smd rect
+		(at 9 0)
+		(size 1 8)
+		(layers "F.Cu" "F.Mask")
+		(uuid "6a8f2192-a6bc-4d2d-99dd-90215e5ae918")
+	)
+	(embedded_fonts no)
+)

@@ -1,0 +1,51 @@
+** Drc report for Mesh_Injection_Apparatus_v1_014.kicad_pcb **
+** Created on 2026-07-10T18:35:10 **
+** Report includes: Errors, Warnings **
+
+** Found 7 DRC violations **
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0500 mm)
+    Rule: board setup constraints edge; error
+    @(137.5000 mm, 74.0000 mm): Polygon on Edge.Cuts
+    @(156.0500 mm, 71.1500 mm): Pad 1 [+5V] of REF** on F.Cu
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(137.5000 mm, 74.0000 mm): Polygon on Edge.Cuts
+    @(158.5000 mm, 71.1500 mm): Pad 2 [Net-(J2-D-)] of REF** on F.Cu
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(137.5000 mm, 74.0000 mm): Polygon on Edge.Cuts
+    @(161.0000 mm, 71.1500 mm): Pad 3 [Net-(J2-D+)] of REF** on F.Cu
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(137.5000 mm, 74.0000 mm): Polygon on Edge.Cuts
+    @(163.5000 mm, 71.1500 mm): Pad 4 [GND] of REF** on F.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(150.7800 mm, 86.0000 mm): Track [Net-(U2-DIO2)] on B.Cu, length 2.5400 mm
+[lib_footprint_issues]: The current configuration does not include the footprint library 'E22-900M30S'
+    Local override; warning
+    @(157.2600 mm, 97.5750 mm): Footprint U2
+[lib_footprint_mismatch]: Footprint 'ESP32-S3-WROOM-1' does not match copy in library 'RF_Module'
+    Local override; warning
+    @(170.1487 mm, 123.2868 mm): Footprint U1
+
+** Found 2 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(148.2400 mm, 86.0000 mm): Pad 8 [Net-(U2-DIO2)] of U2 on F.Cu
+    @(150.7800 mm, 86.0000 mm): Track [Net-(U2-DIO2)] on B.Cu, length 2.5400 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(150.7800 mm, 86.0000 mm): Track [Net-(U2-DIO2)] on B.Cu, length 2.5400 mm
+    @(150.7800 mm, 86.0000 mm): Pad 7 [Net-(U2-DIO2)] of U2 on F.Cu
+
+** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+
+** End of Report **
