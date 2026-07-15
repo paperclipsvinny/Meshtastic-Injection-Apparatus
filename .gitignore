@@ -24,3 +24,7 @@ Thumbs.db
 !.vscode/extensions.json
 .pio/
 **/.pio/
+
+# PlatformIO auto-generated VS Code files (machine-specific, regenerated automatically)
+.vscode/c_cpp_properties.json
+.vscode/launch.json
