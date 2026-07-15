@@ -22,3 +22,5 @@ Thumbs.db
 *.swp
 .vscode/*
 !.vscode/extensions.json
+.pio/
+**/.pio/
