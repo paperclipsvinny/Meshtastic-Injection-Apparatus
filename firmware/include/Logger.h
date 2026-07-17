@@ -14,5 +14,10 @@ public:
 
     //raw passthrough style, for building a line piece by piece.
     static void raw(const char* msg);
+    static void raw(int value);
+    static void raw(float value);
     static void rawln(const char* msg = "");
+
+    //buffer for converting hex
+    static void hexByte(uint8_t value);
 };

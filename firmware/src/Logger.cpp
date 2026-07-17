@@ -50,3 +50,22 @@ void Logger::raw(const char* msg){
 void Logger::rawln(const char* msg){
     Serial.println(msg);
 }
+
+void Logger::raw(int value){
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d", value);
+    Serial.print(buf);
+}
+
+void Logger::raw(float value){
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d", value);
+    Serial.print(buf);
+}
+
+//for Hex methods 
+void Logger::hexByte(uint8_t value){
+    char buf[4];
+    snprintf(buf, sizeof(buf), "%02X ", value);
+    Serial.print(buf);
+}

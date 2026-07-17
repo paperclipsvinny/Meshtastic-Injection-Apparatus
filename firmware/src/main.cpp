@@ -4,6 +4,7 @@
 #include "USB.h"
 #include "USBHIDKeyboard.h"
 #include "mbedtls/aes.h" //esp32 hardware AES
+#include "Logger.h"
 
 //PIN DEFINITIONS
 #define LED 35
@@ -221,22 +222,22 @@ void setup() {
     Serial.begin(115200);
     delay(2000); //wait for serial monitor init
 
-    Serial.println("===============================");
-    Serial.println("  M.esh I.njection A.pparatus ");
-    Serial.println("===============================");
-    Serial.println("Booting...");
+    Logger::rawln("===============================");
+    Logger::rawln("  M.esh I.njection A.pparatus ");
+    Logger::rawln("===============================");
+    Logger::info("Booting...");
 
     //USB HID Init
-    Serial.print("Initializing USB HID...");
+    Logger::raw("Initializing USB HID...");
     USB.begin();
     Keyboard.begin();
-    Serial.println("OK!");
+    Logger::rawln("OK!");
 
     //initialize spi for LORA
     spi.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
 
     //lora init
-    Serial.print("Initializing LoRa...");
+    Logger::raw("Initializing LoRa...");
     //following goes: freq, BW, SF, CR, Sync word, power, preamble len, txcoVoltages, use LDO
     int state = radio.begin(906.875, 250.0, 11, 5, 0x2B, 22, 16, 1.8, false);
     radio.setCRC(RADIOLIB_SX126X_LORA_CRC_ON); //appends a checksum to packets
@@ -260,7 +261,7 @@ void setup() {
     
     */
     if (state == RADIOLIB_ERR_NONE) {
-        Serial.println("OK!");
+        Logger::rawln("OK!");
     //restarts listening
     radio.startReceive();
     }
@@ -295,27 +296,24 @@ void loop(){
         int state = radio.readData(buffer, len); //read packet from radio
 
         if (state == RADIOLIB_ERR_NONE) {
-            Serial.println("\n----Packet Recieved---");
-            Serial.print("Length: ");
-            Serial.print(len);
-            Serial.println(" bytes");
+            Logger::rawln("\n----Packet Recieved---");
+            Logger::raw("Length: ");
+            Logger::raw((int)len);
+            Logger::rawln(" bytes");
 
-            Serial.print("\n RSSI: ");
-            Serial.print(radio.getRSSI());
-            Serial.println(" dBm");
-            Serial.print("\n SNR: ");
-            Serial.print(radio.getSNR());
-            Serial.println(" dB");
+            Logger::raw("\n RSSI: ");
+            Logger::raw(radio.getRSSI());
+            Logger::rawln(" dBm");
+            Logger::raw("\n SNR: ");
+            Logger::raw(radio.getSNR());
+            Logger::rawln(" dB");
 
             //print raw hex
-            Serial.print("Hex: ");
-            for (size_t i = 0; i < len; i++) {
-                if (buffer[i] < 0x10) Serial.print("0");
-                Serial.print(buffer[i], HEX);
-                Serial.print(" ");
-        
+            Logger::raw("Hex: ");
+            for (size_t i = 0; i < len; i++){
+                Logger::hexByte(buffer[i]);
             }
-            Serial.println();
+            Logger::rawln();
 
             //header parsing functionality
             uint32_t dest = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24;
@@ -324,7 +322,7 @@ void loop(){
             uint8_t flags = buffer[12];
             uint8_t channel = buffer[13];
             
-           Serial.printf("From: %08X To: %08X ID: %08X Flags: %02X Ch: %02X\n",
+            Logger::infof("From: %08X To: %08X ID: %08X Flags: %02X Ch: %02X",
                         source, dest, packetid, flags, channel);
 
             //nonce generation:
@@ -343,13 +341,11 @@ void loop(){
             nonce[11] = (source >> 24) & 0xFF;
             //bytes 12-15 zero'd as well (matters when payload size > 16 bytes)
             
-            Serial.print("Nonce: ");
+            Logger::raw("Nonce: ");
             for (int i = 0; i < 16; i++){
-                if (nonce[i] < 0x10) Serial.print("0");
-                Serial.print(nonce[i], HEX);
-                Serial.print(" ");
+                Logger::hexByte(nonce[i]);
             }
-            Serial.println();
+            Logger::rawln();
             
             
             
@@ -367,34 +363,29 @@ void loop(){
                 mbedtls_aes_crypt_ctr(&aesCtx, payloadlen, &nonceOffset, nonce, streamBlock, &buffer[16], decrypted);
                 
                 //print first 16 bytes of ciphertext, more data = more information
-                Serial.print("Encrypted: ");
+                Logger::raw("Encrypted: ");
                 for (size_t i = 0; i < payloadlen && i < 16; i++) {
-                    if (buffer[16+i] < 0x10) Serial.print("0");
-                    Serial.print(buffer[16+i], HEX);
-                    Serial.print(" ");
+                    Logger::hexByte(buffer[16+i]);
                 }
-                Serial.println();
+                Logger::rawln();
 
             //print first 16 bytes of plaintext, in hex (still protobuf encoded)    
-            Serial.print("Decrypted: ");
+            Logger::raw("Decrypted: ");
             for (int i = 0; i < payloadlen; i++) {
-                if (decrypted[i] < 0x10) Serial.print("0");
-                Serial.print(decrypted[i], HEX); 
-                Serial.print (" ");
+                Logger::hexByte(decrypted[i]);
             }
-            Serial.println();
+            Logger::rawln();
             
             //protobuf reading logic (only works for text message app messages)
             if (payloadlen >=2 && decrypted[0] == 0x08 && decrypted[1] == 0x01){
-                Serial.println("Text message detected (header 0x08 0x01)");
+                Logger::rawln("Text message detected (header 0x08 0x01)");
                 //Field 2 (payload) starts at byte 2, 12 = field 2, wire type 2 (length delimited)
                 if (payloadlen >=4 && decrypted[2] == 0x12){
                     uint8_t textlen = decrypted[3];
-                    Serial.print("Text length = ");
-                    Serial.print(textlen);
-                    Serial.print(".");
-                    Serial.println();
-                    Serial.print("<Text:> ");
+                    Logger::raw("Text length = ");
+                    Logger::raw((int)textlen);
+                    Logger::rawln(".");
+                    Logger::raw("<Text:> ");
                     //extract text into buffer
                     char textBuffer[200];
                     int len = 0;
@@ -403,11 +394,11 @@ void loop(){
                         len++;
                     }
                     textBuffer[len] = '\0'; //null terminate
-                    Serial.println(textBuffer);
+                    Logger::rawln(textBuffer);
                     
                     //check for "!mia:" prefix
                     if (strncmp(textBuffer, "!mia:", 5) == 0){
-                        Serial.println("[MIA] Command Detected!");
+                        Logger::info("[MIA] Command Detected!");
                         //get pointer to command 
                         char* command = textBuffer + 5;
                         //handle leading whitespace
@@ -433,25 +424,29 @@ void loop(){
         static unsigned long lastStatus = 0;
         if (millis() - lastStatus > 5000){
             lastStatus = millis();
-            Serial.print("[DEBUG] Listening... rxFlag = ");
-            Serial.println(rxFlag);
+            Logger::raw("[DEBUG] Listening... rxFlag = ");
+            Logger::raw(rxFlag);
+            Logger::rawln();
         }
 
          
     static unsigned long lastRSSI = 0;
     if (millis() - lastRSSI > 2000){
         lastRSSI = millis();
-        Serial.print("RF RSSI: ");
-        Serial.print(radio.getRSSI());
-        Serial.println(" dBm");
+        Logger::raw("RF RSSI: ");
+        Logger::raw(radio.getRSSI());
+        Logger::rawln(" dBm");
     }
     static unsigned long lastIrq = 0;
 if (millis() - lastIrq > 500) {
     lastIrq = millis();
     uint16_t irq = radio.getIrqFlags();
     if (irq != 0) {
-        Serial.print("[IRQ] flags: 0x");
-        Serial.println(irq, HEX);
+        Logger::raw("[IRQ] flags: 0x");
+        char irqBuf[8];
+        sniprintf(irqBuf, sizeof(irqBuf), "%X", irq);
+        Logger::raw(irqBuf);
+        Logger::rawln();
     }
 }
 }
