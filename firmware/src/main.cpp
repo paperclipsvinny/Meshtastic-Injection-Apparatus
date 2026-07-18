@@ -1,17 +1,16 @@
 #include <Arduino.h>
 #include <RadioLib.h>
 #include <Preferences.h> //for persistent storage
-#include "USB.h"
-#include "USBHIDKeyboard.h"
 #include "mbedtls/aes.h" //esp32 hardware AES
 #include "Logger.h"
+#include "HID.h"
 
 //PIN DEFINITIONS
 #define LED 35
 #define VEXT_ENABLE 36 //Voltage External (peripheral power)
 // Heltec V3 LoRa Pins
 #define LORA_CS 8
-#define LORA_DIO1 14
+#define LORA_DIO1 14    
 #define LORA_RST 12
 #define LORA_BUSY 13
 #define LORA_MISO 11
@@ -28,16 +27,16 @@
 #define LORA_POWER 22
 #define LOra_PREAM 16
 
-
-
 //New Radio Instance
 SPIClass spi(HSPI);
 SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY, spi);
-//Keyboard setup
-USBHIDKeyboard Keyboard;
 
 //rx interrupt flag, set by radio, cleared by loop.
 volatile bool rxFlag = false;
+
+//initial declaration for retransmitted packet variables 
+uint32_t lastExecutedPacketId = 0;
+uint32_t lastExecutedSource = 0;
 
 //prevents collisions 
 void IRAM_ATTR setRxFlag(){
@@ -53,167 +52,6 @@ const uint8_t defaultKey[16] = {
     0xf0, 0xbc, 0xff, 0xab, 0xcf, 0x4e, 0x69, 0x01,
 };
             
-//Duckyscript Command extraction
-void executecommand(char* keyword, char* argument){
-    Serial.print(keyword);
-    if (argument != NULL) {
-        Serial.print(argument);
-    }
-    Serial.println();
-    
-    //STRING
-    if (strcmp(keyword, "STRING") == 0 && argument != NULL){
-        Keyboard.print(argument);
-    } 
-
-    //STRINGLN(type text and enter)
-    else if (strcmp(keyword, "STRINGLN") == 0 && argument != NULL){
-        Keyboard.println(argument);
-    }
-
-    // ENTER
-    else if (strcmp(keyword, "ENTER") == 0) {
-        Keyboard.write(KEY_RETURN);
-    }
-    // TAB
-    else if (strcmp(keyword, "TAB") == 0) {
-        Keyboard.write(KEY_TAB);
-    }
-    // ESCAPE
-    else if (strcmp(keyword, "ESCAPE") == 0 || strcmp(keyword, "ESC") == 0) {
-        Keyboard.write(KEY_ESC);
-    }
-    // SPACE
-    else if (strcmp(keyword, "SPACE") == 0) {
-        Keyboard.write(' ');
-    }
-    // BACKSPACE
-    else if (strcmp(keyword, "BACKSPACE") == 0) {
-        Keyboard.write(KEY_BACKSPACE);
-    }
-    // DELETE
-    else if (strcmp(keyword, "DELETE") == 0) {
-        Keyboard.write(KEY_DELETE);
-    }
-    // UP / DOWN / LEFT / RIGHT
-    else if (strcmp(keyword, "UP") == 0) {
-        Keyboard.write(KEY_UP_ARROW);
-    }
-    else if (strcmp(keyword, "DOWN") == 0) {
-        Keyboard.write(KEY_DOWN_ARROW);
-    }
-    else if (strcmp(keyword, "LEFT") == 0) {
-        Keyboard.write(KEY_LEFT_ARROW);
-    }
-    else if (strcmp(keyword, "RIGHT") == 0) {
-        Keyboard.write(KEY_RIGHT_ARROW);
-    }
-    // F1-F12
-    else if (strcmp(keyword, "F1") == 0) { Keyboard.write(KEY_F1); }
-    else if (strcmp(keyword, "F2") == 0) { Keyboard.write(KEY_F2); }
-    else if (strcmp(keyword, "F3") == 0) { Keyboard.write(KEY_F3); }
-    else if (strcmp(keyword, "F4") == 0) { Keyboard.write(KEY_F4); }
-    else if (strcmp(keyword, "F5") == 0) { Keyboard.write(KEY_F5); }
-    else if (strcmp(keyword, "F6") == 0) { Keyboard.write(KEY_F6); }
-    else if (strcmp(keyword, "F7") == 0) { Keyboard.write(KEY_F7); }
-    else if (strcmp(keyword, "F8") == 0) { Keyboard.write(KEY_F8); }
-    else if (strcmp(keyword, "F9") == 0) { Keyboard.write(KEY_F9); }
-    else if (strcmp(keyword, "F10") == 0) { Keyboard.write(KEY_F10); }
-    else if (strcmp(keyword, "F11") == 0) { Keyboard.write(KEY_F11); }
-    else if (strcmp(keyword, "F12") == 0) { Keyboard.write(KEY_F12); }
-    // DELAY - pause execution
-    else if (strcmp(keyword, "DELAY") == 0 && argument != NULL) {
-        int ms = atoi(argument);  // Convert string to integer
-        delay(ms);
-    }
-    // GUI / WINDOWS - Windows key combos
-    else if (strcmp(keyword, "GUI") == 0 || strcmp(keyword, "WINDOWS") == 0) {
-        Keyboard.press(KEY_LEFT_GUI);
-        if (argument != NULL && strlen(argument) > 0) {
-            Keyboard.write(argument[0]);  // Press the key with GUI held
-        }
-        Keyboard.release(KEY_LEFT_GUI);
-    }
-    // CTRL - Control key combos
-    else if (strcmp(keyword, "CTRL") == 0 || strcmp(keyword, "CONTROL") == 0) {
-        Keyboard.press(KEY_LEFT_CTRL);
-        if (argument != NULL && strlen(argument) > 0) {
-            Keyboard.write(argument[0]);
-        }
-        Keyboard.release(KEY_LEFT_CTRL);
-    }
-    // ALT - Alt key combos
-    else if (strcmp(keyword, "ALT") == 0) {
-        Keyboard.press(KEY_LEFT_ALT);
-        if (argument != NULL && strlen(argument) > 0) {
-            Keyboard.write(argument[0]);
-        }
-        Keyboard.release(KEY_LEFT_ALT);
-    }
-    // SHIFT - Shift key combos
-    else if (strcmp(keyword, "SHIFT") == 0) {
-        Keyboard.press(KEY_LEFT_SHIFT);
-        if (argument != NULL && strlen(argument) > 0) {
-            Keyboard.write(argument[0]);
-        }
-        Keyboard.release(KEY_LEFT_SHIFT);
-    }
-    // CAPSLOCK
-    else if (strcmp(keyword, "CAPSLOCK") == 0) {
-        Keyboard.write(KEY_CAPS_LOCK);
-    }
-    // PRINTSCREEN
-    else if (strcmp(keyword, "PRINTSCREEN") == 0) {
-        Keyboard.write(HID_KEY_PRINT_SCREEN);
-    }
-    // REM - comment, do nothing
-    else if (strcmp(keyword, "REM") == 0) {
-        // Ignore comments
-    }
-    // Unknown command
-    else {
-        Serial.print("[MIA] Unknown command: ");
-        Serial.println(keyword);
-    }
-}
-
-//used for multiple commands, seperated by a comma.
-void executecommands(char* commandstring){
-    char* cmdCopy = strdup(commandstring); //make a copy since strtok modifies the string
-    char* singleCmd = strtok(cmdCopy, ",");
-
-    while (singleCmd != NULL){
-        //trim leading whitespace
-        while (*singleCmd == ' ') singleCmd++;
-        //trim trailing whitespace
-        char* end = singleCmd + strlen(singleCmd) - 1;
-        while (end > singleCmd && *end == ' '){
-            *end = '\0';
-            end--;
-        }
-        if (strlen(singleCmd) > 0){
-            //find space between keyword and arg
-            char* space = strchr(singleCmd, ' ');
-            char* argument = NULL;    
-                        
-            if (space != NULL){
-                *space = '\0';       //terminates keyword
-                argument = space + 1;  //point to argument  
-                            
-                //skip whitespace after keyword
-                while (*argument == ' ') argument++;
-            }
-            //execute the command
-            executecommand(singleCmd, argument);
-            delay(100); //added for reliablity
-        }
-        singleCmd = strtok(NULL, ",");
-    }
-    free(cmdCopy);
-}
-
-
-
 void setup() {
     pinMode(VEXT_ENABLE, OUTPUT);
     digitalWrite(VEXT_ENABLE, LOW);
@@ -229,8 +67,7 @@ void setup() {
 
     //USB HID Init
     Logger::raw("Initializing USB HID...");
-    USB.begin();
-    Keyboard.begin();
+    HID::begin  ();
     Logger::rawln("OK!");
 
     //initialize spi for LORA
@@ -398,13 +235,19 @@ void loop(){
                     
                     //check for "!mia:" prefix
                     if (strncmp(textBuffer, "!mia:", 5) == 0){
-                        Logger::info("[MIA] Command Detected!");
-                        //get pointer to command 
-                        char* command = textBuffer + 5;
-                        //handle leading whitespace
-                        while (*command == ' ') command++;
-                        executecommands(command);
-                    }
+                        if (packetid == lastExecutedPacketId && source == lastExecutedSource){
+                            Logger::info("[MIA] Duplicate/retransmitted packet - skipping");
+                        } else {
+                            lastExecutedPacketId = packetid;
+                            lastExecutedSource = source;
+                            Logger::info("[MIA] Command Detected!");
+                            //get pointer to command 
+                            char* command = textBuffer + 5;
+                            //handle leading whitespace
+                            while (*command == ' ') command++;
+                            HID::executeCommands(command);
+                        }
+                    }   
                 }
             }      
         }
@@ -450,5 +293,3 @@ if (millis() - lastIrq > 500) {
     }
 }
 }
-
-

@@ -59,7 +59,7 @@ void Logger::raw(int value){
 
 void Logger::raw(float value){
     char buf[16];
-    snprintf(buf, sizeof(buf), "%d", value);
+    snprintf(buf, sizeof(buf), "%f", value);
     Serial.print(buf);
 }
 
