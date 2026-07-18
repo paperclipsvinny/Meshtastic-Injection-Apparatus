@@ -7,6 +7,7 @@ All notable changes to MIA will be documented in this file.
 ### Added
 - `Logger` class (`firmware/include/Logger.h`, `firmware/src/Logger.cpp`) — centralizes all serial output, replacing direct `Serial.print`/`println`/`printf` calls throughout `main.cpp`. No functional/output change; groundwork for future web-based logging.
 - `Version.h` with firmware version constant, printed on boot.
+- `HID` class (`firmware/include/HID.h`, `firmware/src/HID.cpp`) — extracts DuckyScript command parsing and USB keyboard execution from `main.cpp` into its own module, following the same pattern as `Logger`. No functional change beyond the fixes listed below.
 
 ### Fixed
 - `Logger::raw(float)` was using the wrong format specifier (`%d` instead of `%f`), causing RSSI/SNR values to print as garbage (`-2147483648`) instead of correct decimal readings.
