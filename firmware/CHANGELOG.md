@@ -2,8 +2,27 @@
 
 All notable changes to MIA will be documented in this file.
 
-## [Unreleased]
+## [v0.3.1]
+### Added
+- Introduced `Radio` module (`Radio.h` / `Radio.cpp`) as the dedicated interface for SX1262 radio communication.
+- Added a public hardware abstraction layer for:
+  - Radio initialization
+  - Packet reception
+  - Receive interrupt handling
+  - RSSI retrieval
+  - SNR retrieval
+  - IRQ flag access
 
+### Changed
+- Moved all LoRa hardware configuration, SPI initialization, and RadioLib setup out of `main.cpp`.
+- Replaced direct `radio` object access throughout the application with calls to the `Radio` interface.
+- Centralized LoRa configuration constants inside the radio module.
+
+### Internal
+- Reduced responsibility of `main.cpp`; it now coordinates application flow instead of managing radio hardware directly.
+- Continued migration toward a modular firmware architecture in preparation for additional subsystem extraction.
+
+##[v0.2.0]
 ### Added
 - `Logger` class (`firmware/include/Logger.h`, `firmware/src/Logger.cpp`) — centralizes all serial output, replacing direct `Serial.print`/`println`/`printf` calls throughout `main.cpp`. No functional/output change; groundwork for future web-based logging.
 - `Version.h` with firmware version constant, printed on boot.

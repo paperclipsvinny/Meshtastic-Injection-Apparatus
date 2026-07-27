@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <Preferences.h> //for persistent storage
-#include "mbedtls/aes.h" //esp32 hardware AES
 #include "Logger.h"
 #include "HID.h"
 #include "Radio.h"
+#include "Crypto.h"
 
 //PIN DEFINITIONS
 #define LED 35
@@ -12,9 +12,6 @@
 //initial declaration for retransmitted packet variables 
 uint32_t lastExecutedPacketId = 0;
 uint32_t lastExecutedSource = 0;
-
-//AES context:
-mbedtls_aes_context aesCtx; //creates AES "context", holds state
 
 //AES Key (default = 0x01, aka AQ== in B64)
 const uint8_t defaultKey[16] = {
@@ -44,12 +41,8 @@ void setup() {
     HID::begin();
     Logger::rawln("OK!");
 
-    //AES init
-    mbedtls_aes_init(&aesCtx);
-    mbedtls_aes_setkey_enc(&aesCtx, defaultKey, 128);
-
+    Crypto::begin(defaultKey);
 }
-
 
 void loop(){
     if(Radio::packetAvailable()){
@@ -86,46 +79,14 @@ void loop(){
             uint8_t channel = buffer[13];
             
             Logger::infof("From: %08X To: %08X ID: %08X Flags: %02X Ch: %02X",
-                        source, dest, packetid, flags, channel);
-
-            //nonce generation:
-            uint8_t nonce[16];
-            memset(nonce, 0, 16); //zero all 16 bytes first
-            //bytes 0-3: packetid (little-endian)
-            nonce[0] = packetid & 0xFF;
-            nonce[1] = (packetid >> 8) & 0xFF;
-            nonce[2] = (packetid >> 16) & 0xFF;
-            nonce[3] = (packetid >> 24) & 0xFF;
-            //bytes 4-7: zeros padding (packetid is only 32 bit)
-            //bytes 8-11: source (little-endian) 
-            nonce[8] = source & 0xFF;
-            nonce[9] = (source >> 8) & 0xFF;
-            nonce[10] = (source >> 16) & 0xFF;
-            nonce[11] = (source >> 24) & 0xFF;
-            //bytes 12-15 zero'd as well (matters when payload size > 16 bytes)
-            
-            Logger::raw("Nonce: ");
-            for (int i = 0; i < 16; i++){
-                Logger::hexByte(nonce[i]);
-            }
-            Logger::rawln();
-            
+                        source, dest, packetid, flags, channel);           
             
             
             //decrypt payload, added bounds checking
             size_t payloadlen = len - 16;
             if (payloadlen > 0 && payloadlen < 200){
                 uint8_t decrypted[200];
-                size_t nonceOffset = 0;
-                uint8_t streamBlock[16];
-                
-                //mbedtls increments counter, copy before use & use a fresh nonce
-                uint8_t nonceCopy[16];
-                memcpy(nonceCopy, nonce, 16);
-
-                mbedtls_aes_crypt_ctr(&aesCtx, payloadlen, &nonceOffset, nonce, streamBlock, &buffer[16], decrypted);
-                
-                //print first 16 bytes of ciphertext, more data = more information
+                Crypto::decrypt(&buffer[16], payloadlen, packetid, source, decrypted);
                 Logger::raw("Encrypted: ");
                 for (size_t i = 0; i < payloadlen && i < 16; i++) {
                     Logger::hexByte(buffer[16+i]);
