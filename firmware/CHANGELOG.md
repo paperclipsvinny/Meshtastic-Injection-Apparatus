@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to MIA will be documented in this file.
+## [v0.3.2]
+-Introduced `Crypto` module (`Crypto.h` / `Crypto.cpp`) as the logic responsible for AES-CTR decryption. 
+**Crypto is now responsible for:**
+- Initializing the AES engine with a 128-bit key (`Crypto::begin(key)`)
+- Constructing the per-packet nonce from packet ID + source address, per Meshtastic's
+  CTR-mode scheme (`Crypto::buildNonce`, private)
+- Decrypting a packet's payload given its ciphertext, length, packet ID, and source
+  address (`Crypto::decrypt`)
+
+Note that the key value is still stored in Main. 
 
 ## [v0.3.1]
 ### Added
