@@ -4,6 +4,8 @@
 #include "HID.h"
 #include "Radio.h"
 #include "Crypto.h"
+#include "StatusLED.h"
+
 
 //PIN DEFINITIONS
 #define LED 35
@@ -22,7 +24,7 @@ const uint8_t defaultKey[16] = {
 void setup() {
     pinMode(VEXT_ENABLE, OUTPUT);
     digitalWrite(VEXT_ENABLE, LOW);
-    pinMode(LED, OUTPUT);
+    StatusLED::begin(LED);
 
     Serial.begin(115200);
     delay(2000); //wait for serial monitor init
@@ -81,7 +83,6 @@ void loop(){
             Logger::infof("From: %08X To: %08X ID: %08X Flags: %02X Ch: %02X",
                         source, dest, packetid, flags, channel);           
             
-            
             //decrypt payload, added bounds checking
             size_t payloadlen = len - 16;
             if (payloadlen > 0 && payloadlen < 200){
@@ -138,15 +139,7 @@ void loop(){
                 }
             }      
         }
-
-            //fast blink for visual feedback when packets recieved
-            for (int i = 0; i < 3; i++){
-                digitalWrite(LED, HIGH);
-                delay(50);
-                digitalWrite(LED, LOW);
-                delay(50);
-            }
-
+        StatusLED::blinkReceived();
         }
         Radio::startReceive();
 

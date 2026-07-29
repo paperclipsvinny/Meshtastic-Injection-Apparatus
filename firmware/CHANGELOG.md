@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to MIA will be documented in this file.
+## [v0.3.3]
+-Introduced `StatusLED` module (`Status.LED` class), which is responsible for the status LED blink.
+-Notes: Currently hardcoded to blink three times on recieve.
+
 ## [v0.3.2]
 -Introduced `Crypto` module (`Crypto.h` / `Crypto.cpp`) as the logic responsible for AES-CTR decryption. 
 **Crypto is now responsible for:**
