@@ -1,8 +1,8 @@
-# Mesh Injection Apparatus (MIA) 
+# Mesh Injection Apparatus (M.I.A.) 
 A tool that combines HID injection with LoRa (Meshtastic) mesh networking for a red team implant that doesn't rely on WiFi or internet for C2. 
-![Board both sides](docs/images/MIA-Board.png)
+![Board both sides](/docs/images/MIA-Board.png)
 
-##DISCLAIMER: 
+## DISCLAIMER: 
 **This is a covert keystroke injection tool, designed for Red Teams, Penetration Testers, and authorized testing only. Do NOT use this tool on any systems which you have not been given express, explicit permission. I, the author, am not responsible for any damages which may incur from using this tool.** 
 
 ## Where is everything?
