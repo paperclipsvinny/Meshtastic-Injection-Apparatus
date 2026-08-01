@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to MIA will be documented in this file.
+
+## [v0.4.0]
+-Moving towards changing radio variables over Serial (and eventually web).
+- Convert Radio class from static to instance-based methods, enabling runtime-editable radio config (spread factor, power)
+- Add getters/setters for radio frequency, bandwidth, spread factor, coding rate, and power
+- Rename internal SX1262 driver object to objectSX1262 to avoid naming collision with the new Radio instance 
+
+
 ## [v0.3.3]
 -Introduced `StatusLED` module (`Status.LED` class), which is responsible for the status LED blink.
 -Notes: Currently hardcoded to blink three times on recieve.

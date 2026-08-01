@@ -20,7 +20,9 @@ const uint8_t defaultKey[16] = {
     0xd4, 0xf1, 0xbb, 0x3a, 0x20, 0x29, 0x07, 0x59,
     0xf0, 0xbc, 0xff, 0xab, 0xcf, 0x4e, 0x69, 0x01,
 };
-            
+        
+Radio radio; //allocates memory for Radio object
+
 void setup() {
     pinMode(VEXT_ENABLE, OUTPUT);
     digitalWrite(VEXT_ENABLE, LOW);
@@ -34,7 +36,7 @@ void setup() {
     Logger::rawln("===============================");
     Logger::info("Booting...");
 
-    if (!Radio::begin()){
+    if (!radio.begin()){
         Logger::rawln("Radio init failed - halting.");
         while (true) delay(1000);
     }
@@ -47,11 +49,11 @@ void setup() {
 }
 
 void loop(){
-    if(Radio::packetAvailable()){
+    if(radio.packetAvailable()){
         //buffer for recieved bytes
         uint8_t buffer[255];
         size_t len;
-        int state = Radio::receivePacket(buffer, sizeof(buffer), len); //read packet from radio
+        int state = radio.receivePacket(buffer, sizeof(buffer), len); //read packet from radio
         
         if (state == RADIOLIB_ERR_NONE) {
             Logger::rawln("\n----Packet Recieved---");
@@ -60,10 +62,10 @@ void loop(){
             Logger::rawln(" bytes");
 
             Logger::raw("\n RSSI: ");
-            Logger::raw(Radio::getRSSI());
+            Logger::raw(radio.getRSSI());
             Logger::rawln(" dBm");
             Logger::raw("\n SNR: ");
-            Logger::raw(Radio::getSNR());
+            Logger::raw(radio.getSNR());
             Logger::rawln(" dB");
 
             //print raw hex
@@ -141,7 +143,7 @@ void loop(){
         }
         StatusLED::blinkReceived();
         }
-        Radio::startReceive();
+        radio.startReceive();
 
     }
          
@@ -149,13 +151,13 @@ void loop(){
     if (millis() - lastRSSI > 2000){
         lastRSSI = millis();
         Logger::raw("RF RSSI: ");
-        Logger::raw(Radio::getRSSI());
+        Logger::raw(radio.getRSSI());
         Logger::rawln(" dBm");
     }
     static unsigned long lastIrq = 0;
     if (millis() - lastIrq > 500) {
         lastIrq = millis();
-        uint16_t irq = Radio::getIrqFlags();
+        uint16_t irq = radio.getIrqFlags();
         if (irq != 0) {
             Logger::raw("[IRQ] flags: 0x");
             char irqBuf[8];

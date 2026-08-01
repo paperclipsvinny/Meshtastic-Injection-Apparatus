@@ -2,29 +2,9 @@
 #include "Logger.h"
 #include <RadioLib.h>
 
-// Heltec V3 LoRa Pins
-#define LORA_CS 8
-#define LORA_DIO1 14    
-#define LORA_RST 12
-#define LORA_BUSY 13
-#define LORA_MISO 11
-#define LORA_MOSI 10
-#define LORA_SCK 9
-
-//MESHTASTIC RADIO PARAMETERS 
-//currently LONGFAST, US Frequency
-#define LORA_FREQ 906.875
-#define LORA_BAND 250.0
-#define LORA_SF 11
-#define LORA_CR 5
-#define LORA_SYNC 0x2B
-#define LORA_POWER 22
-#define LORA_PREAM 16
-#define LORA_TXCOVOLT 1.8 
-
 //New Radio Instance
 SPIClass spi(HSPI);
-SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY, spi);
+SX1262 objectSX1262 = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY, spi);
 
 //rx interrupt flag, set by radio, cleared by loop.
 volatile bool rxFlag = false;
@@ -40,18 +20,18 @@ bool Radio::begin() {
 
     //lora init
     Logger::raw("Initializing LoRa...");
-    //following goes: freq, BW, SF, CR, Sync word, power, preamble len, txcoVoltages, use LDO
-    int state = radio.begin(LORA_FREQ, LORA_BAND, LORA_SF, LORA_CR, LORA_SYNC, LORA_POWER, LORA_PREAM, LORA_TXCOVOLT, false);
-    radio.setCRC(RADIOLIB_SX126X_LORA_CRC_ON); //appends a checksum to packets
-    radio.setCurrentLimit(140.0); //how much current the radio can draw during tx. 
-    radio.setRxBoostedGainMode(true); //boosted gain for better sensitivity
-    radio.setDio2AsRfSwitch(true); //connect antenna to recieve path
-    radio.setDio1Action(setRxFlag);
+    //following goes: (LORA_FREQ, LORA_BAND, LORA_SF, LORA_CR, Sync word, LORA_POWER, preamble len, LORA_TXCOVOLT, use LDO);
+    int state = objectSX1262.begin(freq, bandwidth, sf, cr, LORA_SYNC, power, LORA_PREAM, LORA_TXCOVOLT, false);
+    objectSX1262.setCRC(RADIOLIB_SX126X_LORA_CRC_ON); //appends a checksum to packets
+    objectSX1262.setCurrentLimit(140.0); //how much current the radio can draw during tx. 
+    objectSX1262.setRxBoostedGainMode(true); //boosted gain for better sensitivity
+    objectSX1262.setDio2AsRfSwitch(true); //connect antenna to recieve path
+    objectSX1262.setDio1Action(setRxFlag);
 
     if (state == RADIOLIB_ERR_NONE) {
         Logger::rawln("OK!");
         //restarts listening
-        radio.startReceive();
+        objectSX1262.startReceive();
         return true;
     } else{
         Logger::rawln("FAILED!");
@@ -61,15 +41,15 @@ bool Radio::begin() {
 }
 
 void Radio::startReceive(){
-    radio.startReceive();
+    objectSX1262.startReceive();
 } 
 
 float Radio::getRSSI(){
-    return radio.getRSSI();
+    return objectSX1262.getRSSI();
 }
     
 float Radio::getSNR(){
-    return radio.getSNR();
+    return objectSX1262.getSNR();
 }
 
 bool Radio::packetAvailable(){
@@ -79,13 +59,32 @@ bool Radio::packetAvailable(){
 }
 
 int Radio::receivePacket(uint8_t* buffer, size_t bufferSize, size_t& outLen){
-    outLen = radio.getPacketLength();
+    outLen = objectSX1262.getPacketLength();
     if (outLen == 0 || outLen > bufferSize){
         return RADIOLIB_ERR_LORA_HEADER_DAMAGED;
     }
-    return radio.readData(buffer, outLen);
+    return objectSX1262.readData(buffer, outLen);
 }
 
 uint16_t Radio::getIrqFlags(){
-    return radio.getIrqFlags();
+    return objectSX1262.getIrqFlags();
+}
+
+//Serial/web API functions
+bool Radio::setSpreadFactor(uint8_t newSf) {
+    int state = objectSX1262.setSpreadingFactor(newSf);
+    if (state == RADIOLIB_ERR_NONE) {
+        sf = newSf;
+        return true;
+    }
+    return false;
+}
+
+bool Radio::setPower(int8_t newPower) {
+    int state = objectSX1262.setOutputPower(newPower);
+    if (state == RADIOLIB_ERR_NONE) {
+        power = newPower;
+        return true;
+    }
+    return false;
 }
