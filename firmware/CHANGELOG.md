@@ -2,6 +2,11 @@
 
 All notable changes to MIA will be documented in this file.
 
+## [v0.5.0]
+- Added `SerialApi` module (`SerialApi.h` / `SerialApi.cpp`) — JSON-based command
+  interface over USB serial for reading and modifying radio config at runtime.
+
+
 ## [v0.4.0]
 -Moving towards changing radio variables over Serial (and eventually web).
 - Convert Radio class from static to instance-based methods, enabling runtime-editable radio config (spread factor, power)

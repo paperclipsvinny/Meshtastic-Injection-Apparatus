@@ -5,7 +5,7 @@
 #include "Radio.h"
 #include "Crypto.h"
 #include "StatusLED.h"
-
+#include "SerialApi.h" 
 
 //PIN DEFINITIONS
 #define LED 35
@@ -22,6 +22,7 @@ const uint8_t defaultKey[16] = {
 };
         
 Radio radio; //allocates memory for Radio object
+SerialApi serialApi; //same thing for SerialAPI
 
 void setup() {
     pinMode(VEXT_ENABLE, OUTPUT);
@@ -40,6 +41,11 @@ void setup() {
         Logger::rawln("Radio init failed - halting.");
         while (true) delay(1000);
     }
+    
+    //serial API start
+    serialApi.begin(&radio);
+    Logger::rawln("Serial API loaded.");
+
     //USB HID Init
     Logger::raw("Initializing USB HID...");
     HID::begin();
@@ -49,6 +55,7 @@ void setup() {
 }
 
 void loop(){
+    serialApi.handle(); //processes serial commands each iteration
     if(radio.packetAvailable()){
         //buffer for recieved bytes
         uint8_t buffer[255];
