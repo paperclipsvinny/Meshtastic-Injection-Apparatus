@@ -9,7 +9,7 @@ A tool that combines HID injection with LoRa (Meshtastic) mesh networking for a 
 For Firmware Architecture notes, check out [ARCHITECTURE.md](./ARCHITECTURE.md)
 Hardware Schematics and PCB manufacturing files can be found under [`/Hardware`](./Hardware) . 
 
-For full Documentation, visit [TheMIA.dev](https://themia.dev)
+For technical Documentation, head over to [DOCUMENTATION.md](docs/DOCUMENTATION.md) also available at [TheMIA.dev](https://themia.dev)
 
 As debuted at the [DEF CON 34 Main stage](https://defcon.org/html/defcon-34/dc-34-speakers.html#content_66655)
 

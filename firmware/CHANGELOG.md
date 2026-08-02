@@ -5,6 +5,9 @@ All notable changes to MIA will be documented in this file.
 ## [v0.5.0]
 - Added `SerialApi` module (`SerialApi.h` / `SerialApi.cpp`) — JSON-based command
   interface over USB serial for reading and modifying radio config at runtime.
+- Added bblanchon's ArduinoJson library to Plaform.ini's dependancies. 
+- Added `DOCUMENTATION.md` in `/docs` in order to note format for changing radio variables.
+- Added `MESHTASTIC-RESOURCES.md` to make a place for all Meshtastic Links and documentation.
 
 
 ## [v0.4.0]
