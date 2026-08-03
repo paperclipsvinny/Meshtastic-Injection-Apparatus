@@ -8,6 +8,7 @@
 #include "SerialApi.h" 
 #include "WebApi.h"
 #include "WifiConfig.h"
+#include "PacketParser.h" 
 
 
 //PIN DEFINITIONS
@@ -28,6 +29,7 @@ Radio radio; //allocates memory for Radio object
 SerialApi serialApi; //same thing for SerialAPI
 WebApi webApi; //same, for WebAPI
 WifiConfig wifiConfig; //you guessed it
+Crypto crypto;
 
 
 void setup() {
@@ -66,7 +68,7 @@ void setup() {
     HID::begin();
     Logger::rawln("OK!");
 
-    Crypto::begin(defaultKey);
+    crypto.begin(defaultKey);
 }
 
 void loop(){
@@ -97,61 +99,47 @@ void loop(){
             }
             Logger::rawln();
 
-            //header parsing functionality
-            uint32_t dest = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24;
-            uint32_t source = buffer[4] | buffer[5] << 8 | buffer[6] << 16 | buffer[7] << 24;
-            uint32_t packetid = buffer[8] | buffer[9] << 8 | buffer[10] << 16 | buffer[11] << 24;
-            uint8_t flags = buffer[12];
-            uint8_t channel = buffer[13];
-            
+            //header parsing functionality handled with PacketParser
+            PacketHeader header = PacketParser::parseHeader(buffer);
             Logger::infof("From: %08X To: %08X ID: %08X Flags: %02X Ch: %02X",
-                        source, dest, packetid, flags, channel);           
+                header.source, header.dest, header.packetId, header.flags, header.channel);
             
             //decrypt payload, added bounds checking
             size_t payloadlen = len - 16;
             if (payloadlen > 0 && payloadlen < 200){
                 uint8_t decrypted[200];
-                Crypto::decrypt(&buffer[16], payloadlen, packetid, source, decrypted);
+                crypto.decrypt(&buffer[16], payloadlen, header.packetId, header.source, decrypted);
                 Logger::raw("Encrypted: ");
                 for (size_t i = 0; i < payloadlen && i < 16; i++) {
                     Logger::hexByte(buffer[16+i]);
                 }
                 Logger::rawln();
 
-            //print first 16 bytes of plaintext, in hex (still protobuf encoded)    
-            Logger::raw("Decrypted: ");
-            for (int i = 0; i < payloadlen; i++) {
-                Logger::hexByte(decrypted[i]);
-            }
-            Logger::rawln();
+                //print first 16 bytes of plaintext, in hex (still protobuf encoded)    
+                Logger::raw("Decrypted: ");
+                for (int i = 0; i < payloadlen; i++) {
+                    Logger::hexByte(decrypted[i]);
+                }
+                Logger::rawln();
             
-            //protobuf reading logic (only works for text message app messages)
-            if (payloadlen >=2 && decrypted[0] == 0x08 && decrypted[1] == 0x01){
-                Logger::rawln("Text message detected (header 0x08 0x01)");
-                //Field 2 (payload) starts at byte 2, 12 = field 2, wire type 2 (length delimited)
-                if (payloadlen >=4 && decrypted[2] == 0x12){
-                    uint8_t textlen = decrypted[3];
+                //text extraction in Packet Parser
+                char textBuffer[200];
+                uint8_t textLen;
+                if (PacketParser::extractTextMessage(decrypted, payloadlen, textBuffer, sizeof(textBuffer), &textLen)){
+                    Logger::rawln("Text message detected (header 0x08 0x01)");
                     Logger::raw("Text length = ");
-                    Logger::raw((int)textlen);
+                    Logger::raw((int)textLen);
                     Logger::rawln(".");
                     Logger::raw("<Text:> ");
-                    //extract text into buffer
-                    char textBuffer[200];
-                    int len = 0;
-                    for (int i = 0; i < textlen &&(4 + i) < payloadlen && i < 199; i++){
-                        textBuffer[i] = decrypted[4 + i];
-                        len++;
-                    }
-                    textBuffer[len] = '\0'; //null terminate
                     Logger::rawln(textBuffer);
-                    
+
                     //check for "!mia:" prefix
                     if (strncmp(textBuffer, "!mia:", 5) == 0){
-                        if (packetid == lastExecutedPacketId && source == lastExecutedSource){
+                        if (header.packetId == lastExecutedPacketId && header.source == lastExecutedSource){
                             Logger::info("[MIA] Duplicate/retransmitted packet - skipping");
                         } else {
-                            lastExecutedPacketId = packetid;
-                            lastExecutedSource = source;
+                            lastExecutedPacketId = header.packetId;
+                            lastExecutedSource = header.source;
                             Logger::info("[MIA] Command Detected!");
                             //get pointer to command 
                             char* command = textBuffer + 5;
@@ -159,14 +147,12 @@ void loop(){
                             while (*command == ' ') command++;
                             HID::executeCommands(command);
                         }
-                    }   
+                    }    
                 }
-            }      
+            }  
         }
         StatusLED::blinkReceived();
-        }
         radio.startReceive();
-
     }
          
     static unsigned long lastRSSI = 0;
