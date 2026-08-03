@@ -2,6 +2,25 @@
 
 All notable changes to MIA will be documented in this file.
 
+## [v0.6.0]
+- Added `WebApi` module — HTTP interface mirroring SerialApi's get_config/
+  set_config commands, served over the ESP32's own WiFi AP.
+- Added `WifiConfig` (`WifiConfig.h`) — holds AP SSID, password, and enabled
+  state. Not yet persisted; resets to defaults on reboot.
+- Extended `SerialApi` with `get_wifi` / `set_wifi` for reading and toggling
+  AP settings over serial.
+**Endpoints:**
+- `GET /api/config` — returns frequency, bandwidth, spread factor, coding
+  rate, power
+- `POST /api/config` — accepts spread factor and/or power; requires
+  `Content-Type: application/json`
+
+Note: `apEnabled` is temporarily defaulted to `true` in `WifiConfig.h` since
+live-start and persistence aren't implemented yet — both planned for the
+next release. AP currently broadcasts on every boot using the default
+SSID/password.
+
+
 ## [v0.5.0]
 - Added `SerialApi` module (`SerialApi.h` / `SerialApi.cpp`) — JSON-based command
   interface over USB serial for reading and modifying radio config at runtime.
@@ -9,13 +28,11 @@ All notable changes to MIA will be documented in this file.
 - Added `DOCUMENTATION.md` in `/docs` in order to note format for changing radio variables.
 - Added `MESHTASTIC-RESOURCES.md` to make a place for all Meshtastic Links and documentation.
 
-
 ## [v0.4.0]
 -Moving towards changing radio variables over Serial (and eventually web).
 - Convert Radio class from static to instance-based methods, enabling runtime-editable radio config (spread factor, power)
 - Add getters/setters for radio frequency, bandwidth, spread factor, coding rate, and power
 - Rename internal SX1262 driver object to objectSX1262 to avoid naming collision with the new Radio instance 
-
 
 ## [v0.3.3]
 -Introduced `StatusLED` module (`Status.LED` class), which is responsible for the status LED blink.

@@ -1,8 +1,9 @@
 #include "SerialApi.h"
 #include <ArduinoJson.h>
 
-void SerialApi::begin(Radio* radio) {
+void SerialApi::begin(Radio* radio, WifiConfig* wifi) {
     radioRef = radio;
+    wifiRef = wifi;
 }
 
 void SerialApi::handle() {
@@ -55,7 +56,26 @@ void SerialApi::processCommand(const String& line) {
 
         Serial.println(ok ? "{\"status\":\"ok\"}" : "{\"status\":\"error\"}");
     }
-    else {
+
+    else if (strcmp(cmd, "get_wifi") == 0) {
+    JsonDocument resp;
+    resp["enabled"] = wifiRef->apEnabled;
+    resp["ssid"] = wifiRef->ssid;
+    // password intentionally omitted from get_wifi to protect PSK
+    serializeJson(resp, Serial);
+    Serial.println();
+    }
+    else if (strcmp(cmd, "set_wifi") == 0) {
+        if (doc["enabled"].is<bool>())
+            wifiRef->setEnabled(doc["enabled"]);
+        if (doc["ssid"].is<const char*>())
+            wifiRef->setSsid(doc["ssid"].as<String>());
+        if (doc["password"].is<const char*>())
+            wifiRef->setPassword(doc["password"].as<String>());
+    
+        Serial.println("{\"status\":\"ok\"}");
+    }
+        else {
         Serial.println("{\"error\":\"unknown cmd\"}");
     }
 }

@@ -6,6 +6,9 @@
 #include "Crypto.h"
 #include "StatusLED.h"
 #include "SerialApi.h" 
+#include "WebApi.h"
+#include "WifiConfig.h"
+
 
 //PIN DEFINITIONS
 #define LED 35
@@ -23,6 +26,9 @@ const uint8_t defaultKey[16] = {
         
 Radio radio; //allocates memory for Radio object
 SerialApi serialApi; //same thing for SerialAPI
+WebApi webApi; //same, for WebAPI
+WifiConfig wifiConfig; //you guessed it
+
 
 void setup() {
     pinMode(VEXT_ENABLE, OUTPUT);
@@ -43,8 +49,17 @@ void setup() {
     }
     
     //serial API start
-    serialApi.begin(&radio);
+    serialApi.begin(&radio, &wifiConfig);
     Logger::rawln("Serial API loaded.");
+
+    if (wifiConfig.apEnabled) {
+        webApi.begin(&radio, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
+        Logger::rawln("Web API ready.");
+    } else {
+        Logger::rawln("Web API disabled (send set_wifi over serial to enable).");
+    }
+
+
 
     //USB HID Init
     Logger::raw("Initializing USB HID...");
