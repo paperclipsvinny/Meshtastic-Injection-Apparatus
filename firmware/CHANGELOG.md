@@ -2,6 +2,14 @@
 
 All notable changes to MIA will be documented in this file.
 
+## [v0.6.1]
+- Extracted packet header parsing and text-message extraction from main.cpp's
+  loop() into a new PacketParser module (PacketParser.h/.cpp), in order to 
+  cleanly prepare for private channel & custom PSK support (not broadcast).
+- PacketHeader struct groups dest/source/packetId/flags/channel.
+- extractTextMessage() now also returns the protobuf-reported text length
+  via an out-parameter, restoring the "Text length = N" log line.
+
 ## [v0.6.0]
 - Added `WebApi` module — HTTP interface mirroring SerialApi's get_config/
   set_config commands, served over the ESP32's own WiFi AP.
