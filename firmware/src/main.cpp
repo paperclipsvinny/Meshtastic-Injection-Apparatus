@@ -50,6 +50,9 @@ void setup() {
         while (true) delay(1000);
     }
     
+    //loads wifi config
+    wifiConfig.begin(); 
+
     //serial API start
     serialApi.begin(&radio, &wifiConfig, &webApi, &crypto);
     webApi.begin(&radio, &crypto, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());

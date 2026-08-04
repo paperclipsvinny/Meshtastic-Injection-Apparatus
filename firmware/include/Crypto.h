@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "mbedtls/aes.h"
+#include <Preferences.h>
 
 class Crypto{
 public:
@@ -14,7 +15,7 @@ bool hasKey() const { return keySet; }
 
 private:
 void buildNonce(uint8_t* nonce, uint32_t packetId, uint32_t source);
-
+    Preferences prefs;
     mbedtls_aes_context aesCtx;
     uint8_t currentKey[32]; //sized for up to 256 bit PSKs
     size_t currentKeyLen = 16; //tracks which size is currently in use

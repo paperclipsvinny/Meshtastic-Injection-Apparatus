@@ -2,6 +2,18 @@
 
 All notable changes to MIA will be documented in this file.
 
+
+## [v0.7.1]
+- Added NVS-backed persistence (Preferences library) for Radio config
+  (frequency, bandwidth, spread factor, coding rate, power), Crypto's
+  PSK, and WifiConfig (ssid, password, enabled).
+- All three load stored values on boot, falling back to compiled-in
+  defaults if nothing has been saved yet; every setter writes through
+  to flash immediately.
+- Verified via physical power cycle: spread factor, PSK, and SSID
+  changes all survive a full unplug/replug.
+
+
 ## [v0.7.0]
 - Extended Crypto to support both 128-bit (AES-128) and 256-bit (AES-256)
   PSKs, matching Meshtastic's private channel key lengths.

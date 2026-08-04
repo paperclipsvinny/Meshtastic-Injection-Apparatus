@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include <Preferences.h>
 
 class WifiConfig {
 public:
@@ -7,8 +8,12 @@ public:
     String ssid = "Mesh Injection Apparatus";
     String password = "Mesh-Inject-7f3K9pQ2"; //hardcoded for now
 
-    void setSsid(const String& newSsid) { ssid = newSsid; }
-    void setPassword(const String& newPassword) { password = newPassword; }
-    void setEnabled(bool enabled) { apEnabled = enabled; }
+    void begin(); 
+    void setSsid(const String& newSsid);
+    void setPassword(const String& newPassword);
+    void setEnabled(bool enabled);
+
+private: 
+    Preferences prefs;
 };
 

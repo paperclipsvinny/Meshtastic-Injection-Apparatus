@@ -15,6 +15,14 @@ void IRAM_ATTR Radio::setRxFlag(){
 }
 
 bool Radio::begin() {
+    // load persisted values, falling back to compiled-in defaults
+    prefs.begin("radio", false);   // "radio" = NVS namespace name
+    freq = prefs.getFloat("freq", LORA_FREQ);
+    bandwidth = prefs.getFloat("bw", LORA_BAND);
+    sf = prefs.getUChar("sf", LORA_SF);
+    cr = prefs.getUChar("cr", LORA_CR);
+    power = prefs.getChar("power", LORA_POWER);
+    
     //initialize spi for LORA
     spi.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
 
@@ -75,6 +83,7 @@ bool Radio::setSpreadFactor(uint8_t newSf) {
     int state = objectSX1262.setSpreadingFactor(newSf);
     if (state == RADIOLIB_ERR_NONE) {
         sf = newSf;
+        prefs.putUChar("sf", sf);
         return true;
     }
     return false;
@@ -84,6 +93,7 @@ bool Radio::setPower(int8_t newPower) {
     int state = objectSX1262.setOutputPower(newPower);
     if (state == RADIOLIB_ERR_NONE) {
         power = newPower;
+        prefs.putChar("power", power);
         return true;
     }
     return false;

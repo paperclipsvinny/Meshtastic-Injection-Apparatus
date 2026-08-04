@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <RadioLib.h>
+#include <Preferences.h>
 
 // Heltec V3 LoRa Pins
 #define LORA_CS 8
@@ -46,7 +47,7 @@ public:
 
 private:
     static void IRAM_ATTR setRxFlag(); //must stay static: used as a raw interrupt callback
-
+    Preferences prefs;
     float freq = LORA_FREQ;
     float bandwidth = LORA_BAND;
     uint8_t sf = LORA_SF;

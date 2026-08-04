@@ -1,9 +1,18 @@
 #include "Crypto.h"
 #include <string.h>
+#include <Preferences.h>
 
 void Crypto::begin(const uint8_t* key, size_t keyLen){
     mbedtls_aes_init(&aesCtx); //AES init
-    setKey(key, keyLen);
+    prefs.begin("crypto", false);
+    size_t storedLen = prefs.getBytesLength("key");
+    if (storedLen == 16 || storedLen == 32) {
+        uint8_t stored[32];
+        prefs.getBytes("key", stored, storedLen);
+        setKey(stored, storedLen);
+    } else {
+        setKey(key, keyLen);   // no valid stored key, use the default passed in
+    }
 }
 
 void Crypto::setKey(const uint8_t* newKey, size_t keyLen){
@@ -12,6 +21,7 @@ void Crypto::setKey(const uint8_t* newKey, size_t keyLen){
     currentKeyLen = keyLen;
     mbedtls_aes_setkey_enc(&aesCtx, newKey, keyLen * 8);
     keySet = true;
+    prefs.putBytes("key", newKey, keyLen);
 }
 
 void Crypto::getKey(uint8_t* outKey, size_t* outKeyLen) const {
