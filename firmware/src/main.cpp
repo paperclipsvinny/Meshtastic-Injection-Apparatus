@@ -51,11 +51,12 @@ void setup() {
     }
     
     //serial API start
-    serialApi.begin(&radio, &wifiConfig);
+    serialApi.begin(&radio, &wifiConfig, &webApi, &crypto);
+    webApi.begin(&radio, &crypto, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
     Logger::rawln("Serial API loaded.");
 
     if (wifiConfig.apEnabled) {
-        webApi.begin(&radio, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
+        webApi.begin(&radio, &crypto, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
         Logger::rawln("Web API ready.");
     } else {
         Logger::rawln("Web API disabled (send set_wifi over serial to enable).");
@@ -68,7 +69,7 @@ void setup() {
     HID::begin();
     Logger::rawln("OK!");
 
-    crypto.begin(defaultKey);
+    crypto.begin(defaultKey, 16);
 }
 
 void loop(){

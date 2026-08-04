@@ -5,9 +5,11 @@
 
 static AsyncWebServer server(80);
 Radio* WebApi::radioRef = nullptr;
+Crypto* WebApi::cryptoRef = nullptr;
 
-void WebApi::begin(Radio* radio, const char* apSsid, const char* apPassword) {
+void WebApi::begin(Radio* radio, Crypto* crypto, const char* apSsid, const char* apPassword) {
     radioRef = radio;
+    cryptoRef = crypto;
 
     WiFi.mode(WIFI_AP);
     WiFi.softAP(apSsid, apPassword);

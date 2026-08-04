@@ -2,6 +2,19 @@
 
 All notable changes to MIA will be documented in this file.
 
+## [v0.7.0]
+- Extended Crypto to support both 128-bit (AES-128) and 256-bit (AES-256)
+  PSKs, matching Meshtastic's private channel key lengths.
+- Added get_psk/set_psk to SerialApi and WebApi — PSK read/write as
+  base64, mirroring the existing config command pattern.
+- Verified end-to-end: created 128-bit and 256-bit private channels in
+  the Meshtastic app, confirmed MIA correctly decrypts real text messages
+  and dispatches !mia: commands on both.
+
+Note: MIA tracks a single active PSK at a time — switching channels
+requires re-sending set_psk with the new channel's key. Persistence for
+Radio config, WifiConfig, and PSK is still pending (separate step).
+
 ## [v0.6.1]
 - Extracted packet header parsing and text-message extraction from main.cpp's
   loop() into a new PacketParser module (PacketParser.h/.cpp), in order to 

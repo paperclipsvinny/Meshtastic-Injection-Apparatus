@@ -1,9 +1,13 @@
 #include "SerialApi.h"
 #include <ArduinoJson.h>
+#include "mbedtls/base64.h"
+#include "Crypto.h"
 
-void SerialApi::begin(Radio* radio, WifiConfig* wifi) {
+void SerialApi::begin(Radio* radio, WifiConfig* wifi, WebApi* webApi, Crypto* crypto) {
     radioRef = radio;
     wifiRef = wifi;
+    webApiRef = webApi;
+    cryptoRef = crypto;
 }
 
 void SerialApi::handle() {
@@ -75,6 +79,40 @@ void SerialApi::processCommand(const String& line) {
     
         Serial.println("{\"status\":\"ok\"}");
     }
+    else if (strcmp(cmd, "get_psk") == 0) {
+        uint8_t key[32];
+        size_t keyLen;
+        cryptoRef->getKey(key, &keyLen);
+        
+        unsigned char b64[64];
+        size_t b64Len;
+        mbedtls_base64_encode(b64, sizeof(b64), &b64Len, key, keyLen);
+        
+        JsonDocument resp;
+        resp["psk"] = String((char*)b64).substring(0, b64Len);
+        serializeJson(resp, Serial);
+        Serial.println();
+    }
+    else if (strcmp(cmd, "set_psk") == 0) {
+        if (doc["psk"].is<const char*>()) {
+            String psk = doc["psk"].as<String>();
+            unsigned char decoded[32];
+            size_t decodedLen;
+            int rc = mbedtls_base64_decode(decoded, sizeof(decoded), &decodedLen,
+                                            (const unsigned char*)psk.c_str(), psk.length());
+            if (rc != 0 || (decodedLen != 16 && decodedLen != 32)) {
+            Serial.println("{\"error\":\"psk must decode to 16 or 32 bytes\"}");
+        } else {
+            cryptoRef->setKey(decoded, decodedLen);
+            Serial.println("{\"status\":\"ok\"}");
+        }
+
+        } else {
+            Serial.println("{\"error\":\"missing psk field\"}");
+        }
+    }
+
+
         else {
         Serial.println("{\"error\":\"unknown cmd\"}");
     }
