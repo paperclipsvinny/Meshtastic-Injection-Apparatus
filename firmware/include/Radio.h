@@ -3,14 +3,26 @@
 #include <RadioLib.h>
 #include <Preferences.h>
 
-// Heltec V3 LoRa Pins
-#define LORA_CS 8
-#define LORA_DIO1 14    
-#define LORA_RST 12
-#define LORA_BUSY 13
-#define LORA_MISO 11
-#define LORA_MOSI 10
-#define LORA_SCK 9
+#ifdef MIA_PCB
+    // MIA PCB v1 pins (E22-900M30S)
+    #define LORA_CS    8
+    #define LORA_DIO1  14
+    #define LORA_RST   12
+    #define LORA_BUSY  13
+    #define LORA_MISO  11
+    #define LORA_MOSI  10
+    #define LORA_SCK   9
+
+#else
+    // Heltec V3 LoRa Pins
+    #define LORA_CS 8
+    #define LORA_DIO1 14    
+    #define LORA_RST 12
+    #define LORA_BUSY 13
+    #define LORA_MISO 11
+    #define LORA_MOSI 10
+    #define LORA_SCK 9
+#endif
 
 //MESHTASTIC RADIO PARAMETERS 
 //Defaults, currently LONGFAST, US Frequency
@@ -44,6 +56,7 @@ public:
     bool setSpreadFactor(uint8_t newSf);
     bool setPower(int8_t newPower);
 
+    bool transmit(const uint8_t* data, size_t len);
 
 private:
     static void IRAM_ATTR setRxFlag(); //must stay static: used as a raw interrupt callback

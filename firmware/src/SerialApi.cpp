@@ -111,9 +111,78 @@ void SerialApi::processCommand(const String& line) {
             Serial.println("{\"error\":\"missing psk field\"}");
         }
     }
+    else if (strcmp(cmd, "save_defaults") == 0) {
+    // save current active values into the "defaults" namespace
+    Preferences defaults;
+    defaults.begin("defaults", false);
 
+    // radio
+    defaults.putFloat("freq", radioRef->getFrequency());
+    defaults.putFloat("bw", radioRef->getBandwidth());
+    defaults.putUChar("sf", radioRef->getSpreadFactor());
+    defaults.putUChar("cr", radioRef->getCodingRate());
+    defaults.putChar("power", radioRef->getPower());
 
-        else {
-        Serial.println("{\"error\":\"unknown cmd\"}");
+    // crypto
+    uint8_t key[32];
+    size_t keyLen;
+    cryptoRef->getKey(key, &keyLen);
+    defaults.putBytes("key", key, keyLen);
+    defaults.putUChar("keylen", keyLen);
+
+    // wifi
+    defaults.putBool("ap", wifiRef->apEnabled);
+    defaults.putString("ssid", wifiRef->ssid);
+    defaults.putString("pass", wifiRef->password);
+
+    defaults.end();
+    Serial.println("{\"status\":\"ok\",\"msg\":\"current config saved as defaults\"}");
+}
+else if (strcmp(cmd, "reset_defaults") == 0) {
+    Preferences defaults;
+    defaults.begin("defaults", true); // read-only
+    bool hasSaved = defaults.getBytesLength("key") > 0;
+    defaults.end();
+
+    if (hasSaved) {
+        // load user-saved defaults back into active namespaces
+        Preferences d;
+        d.begin("defaults", true);
+
+        Preferences radio;
+        radio.begin("radio", false);
+        radio.putFloat("freq", d.getFloat("freq", LORA_FREQ));
+        radio.putFloat("bw", d.getFloat("bw", LORA_BAND));
+        radio.putUChar("sf", d.getUChar("sf", LORA_SF));
+        radio.putUChar("cr", d.getUChar("cr", LORA_CR));
+        radio.putChar("power", d.getChar("power", LORA_POWER));
+        radio.end();
+
+        Preferences crypto;
+        crypto.begin("crypto", false);
+        uint8_t key[32];
+        size_t keyLen = d.getBytes("key", key, 32);
+        crypto.putBytes("key", key, keyLen);
+        crypto.end();
+
+        Preferences wifi;
+        wifi.begin("wifi", false);
+        wifi.putBool("enabled", d.getBool("ap", false));
+        wifi.putString("ssid", d.getString("ssid", "Mesh Injection Apparatus"));
+        wifi.putString("password", d.getString("pass", "Mesh-Inject-7f3K9pQ2"));
+        wifi.end();
+
+        d.end();
+        Serial.println("{\"status\":\"ok\",\"msg\":\"defaults restored, reboot to apply\"}");
+    } else {
+        // no user defaults saved — wipe to compiled-in values
+        Preferences radio; radio.begin("radio", false); radio.clear(); radio.end();
+        Preferences crypto; crypto.begin("crypto", false); crypto.clear(); crypto.end();
+        Preferences wifi; wifi.begin("wifi", false); wifi.clear(); wifi.end();
+        Serial.println("{\"status\":\"ok\",\"msg\":\"factory reset, reboot to apply\"}");
     }
+}
+else {
+    Serial.println("{\"error\":\"unknown cmd\"}");
+}
 }

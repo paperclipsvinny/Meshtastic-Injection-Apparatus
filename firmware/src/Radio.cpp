@@ -29,7 +29,19 @@ bool Radio::begin() {
     //lora init
     Logger::raw("Initializing LoRa...");
     //following goes: (LORA_FREQ, LORA_BAND, LORA_SF, LORA_CR, Sync word, LORA_POWER, preamble len, LORA_TXCOVOLT, use LDO);
+    #ifdef MIA_PCB
+    int state = objectSX1262.begin(freq, bandwidth, sf, cr, LORA_SYNC, power, LORA_PREAM);
+    // no TCXO voltage, no useLDO — let RadioLib use its defaults
+#else
     int state = objectSX1262.begin(freq, bandwidth, sf, cr, LORA_SYNC, power, LORA_PREAM, LORA_TXCOVOLT, false);
+#endif
+
+    Logger::raw("Radio begin state: ");
+    Logger::raw(state);
+    Logger::rawln();
+
+    
+    
     objectSX1262.setCRC(RADIOLIB_SX126X_LORA_CRC_ON); //appends a checksum to packets
     objectSX1262.setCurrentLimit(140.0); //how much current the radio can draw during tx. 
     objectSX1262.setRxBoostedGainMode(true); //boosted gain for better sensitivity
@@ -97,4 +109,11 @@ bool Radio::setPower(int8_t newPower) {
         return true;
     }
     return false;
+}
+
+bool Radio::transmit(const uint8_t* data, size_t len) {
+    objectSX1262.clearIrqFlags();
+    int state = objectSX1262.transmit(data, len);
+    objectSX1262.startReceive(); // return to RX after TX
+    return state == RADIOLIB_ERR_NONE;
 }

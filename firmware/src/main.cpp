@@ -12,8 +12,10 @@
 
 
 //PIN DEFINITIONS
-#define LED 35
-#define VEXT_ENABLE 36 //Voltage External (peripheral power)
+#ifndef MIA_PCB
+    #define VEXT_ENABLE 36 //Voltage External (peripheral power) - Heltec only
+    #define LED 35 //Heltec only, no LED on MIA PCB
+#endif
 
 //initial declaration for retransmitted packet variables 
 uint32_t lastExecutedPacketId = 0;
@@ -33,9 +35,11 @@ Crypto crypto;
 
 
 void setup() {
-    pinMode(VEXT_ENABLE, OUTPUT);
-    digitalWrite(VEXT_ENABLE, LOW);
-    StatusLED::begin(LED);
+    #ifndef MIA_PCB
+        pinMode(VEXT_ENABLE, OUTPUT);
+        digitalWrite(VEXT_ENABLE, LOW);
+        StatusLED::begin(LED);
+    #endif
 
     Serial.begin(115200);
     delay(2000); //wait for serial monitor init
@@ -59,7 +63,7 @@ void setup() {
     Logger::rawln("Serial API loaded.");
 
     if (wifiConfig.apEnabled) {
-        webApi.begin(&radio, &crypto, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
+        webApi.begin(&radio, &crypto, &wifiConfig, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
         Logger::rawln("Web API ready.");
     } else {
         Logger::rawln("Web API disabled (send set_wifi over serial to enable).");

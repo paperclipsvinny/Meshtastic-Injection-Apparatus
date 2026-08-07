@@ -21,4 +21,10 @@ You must provide a copy of the original copyright notice and include the full MI
 ### Limitations: 
 The software is NOT under any warranty, and the author will not be held responsible for any damages or issues arising from this software. The original Author’s name and original logos cannot be used for marketing or promotion. 
 
-
+## Credits & Inspiration
+- **[Meshtastic](https://meshtastic.org)** — the mesh protocol MIA builds on
+- **[RadioLib](https://github.com/jgromes/RadioLib)** — LoRa radio abstraction
+- **[Loki](https://github.com/RocketGod-git/Meshtastic-Loki)** — Meshtastic fork that added HID 
+  support, the direct inspiration for MIA's command dispatch model
+- **[EvilCrowRF](https://github.com/joelsernamoreno/EvilCrowRF-V2)** — web dashboard 
+  design inspiration

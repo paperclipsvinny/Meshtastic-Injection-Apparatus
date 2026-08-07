@@ -7,12 +7,14 @@ void StatusLED::begin(uint8_t pin){
 }
 
 void StatusLED::blinkReceived(){
-    //fast blink for visual feedback when packets recieved
-    for (int i = 0; i < 3; i++){
-        digitalWrite(LED, HIGH);
-        delay(50);
-        digitalWrite(LED, LOW);
-        delay(50);
-    }
+    #ifndef MIA_PCB
+        //fast blink for visual feedback when packets recieved
+        for (int i = 0; i < 3; i++){
+            digitalWrite(LEDPin, HIGH);
+            delay(50);
+            digitalWrite(LEDPin, LOW);
+            delay(50);
+        }
+    #endif
 }
     

@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIA — Mesh Injection Apparatus</title>
+<style>
+/* ── Tokens ── */
+:root {
+  --bg:          #13111d;
+  --surface:     #1e1a2e;
+  --surface2:    #221e30;
+  --border:      #3a3455;
+  --accent:      #c4a8f0;
+  --accent-dim:  #a896d4;
+  --accent-glow: rgba(196,168,240,0.10);
+  --text:        #e8e0f5;
+  --muted:      #9d96b8;
+  --ok:          #7ecfa0;
+  --warn:        #f0c97e;
+  --err:         #f07e7e;
+  --sidebar-w:   220px;
+  --mono: 'JetBrains Mono','Fira Mono','Courier New',monospace;
+  --body: 'Inter',system-ui,sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.7;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 28px 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: invert(1);
+  opacity: 0.9;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.sidebar-logo-text {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1.3;
+}
+
+.sidebar-logo-text span {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  margin-top: 1px;
+}
+
+/* Nav */
+nav {
+  flex: 1;
+  padding: 12px 0;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin-bottom: 4px;
+}
+
+.nav-group-label {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 16px 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.nav-group-label:hover { color: var(--accent-dim); }
+
+.nav-arrow {
+  font-size: 8px;
+  transition: transform 0.2s;
+}
+
+.nav-group.open .nav-arrow { transform: rotate(90deg); }
+
+.nav-children {
+  display: none;
+}
+
+.nav-group.open .nav-children { display: block; }
+
+.nav-item {
+  display: block;
+  padding: 7px 16px 7px 28px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 0;
+  transition: color 0.15s, background 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-item:hover { color: var(--text); background: var(--accent-glow); }
+
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-glow);
+  border-right: 2px solid var(--accent);
+}
+
+.nav-item-top {
+  display: block;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-item-top:hover { color: var(--text); background: var(--accent-glow); }
+.nav-item-top.active { color: var(--accent); background: var(--accent-glow); border-right: 2px solid var(--accent); }
+
+/* Reboot at bottom */
+.sidebar-footer {
+  border-top: 1px solid var(--border);
+  padding: 12px;
+}
+
+.btn-reboot {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #3a2020;
+  color: var(--err);
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.btn-reboot:hover { border-color: var(--err); background: rgba(240,126,126,0.06); }
+
+/* ── Main ── */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Mobile header */
+#mobile-header {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+#hamburger {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.mobile-title {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+/* Overlay for mobile sidebar */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 99;
+}
+
+/* Pages */
+.page {
+  display: none;
+  padding: 24px;
+  max-width: 720px;
+}
+
+.page.active { display: block; }
+
+.page-title {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.card-label {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* Stat rows */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.stat-row:last-child { border-bottom: none; }
+.stat-key { color: var(--muted); }
+.stat-val { font-family: var(--mono); color: var(--accent); }
+.stat-val.ok { color: var(--ok); }
+.stat-val.err { color: var(--err); }
+.stat-val.warn { color: var(--warn); }
+
+/* Form rows */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.form-row:last-child { margin-bottom: 0; }
+
+.form-row label {
+  font-size: 14px;
+  color: var(--muted);
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.slider-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 52px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.slider-row label { font-size: 14px; color: var(--muted); }
+
+.slider-val {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--accent);
+  text-align: right;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="password"],
+textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 7px 10px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+input:focus, textarea:focus { border-color: var(--accent-dim); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+/* Toggle */
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { display: none; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: white;
+  top: 3px; left: 3px;
+  transition: transform 0.2s;
+}
+.toggle input:checked + .toggle-track::after { transform: translateX(16px); }
+
+/* Buttons */
+.btn {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.btn:hover { opacity: 0.82; }
+.btn:active { opacity: 0.65; }
+
+.btn-primary { background: var(--accent); color: var(--bg); font-weight: 600; }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--accent-dim); color: var(--accent); }
+.btn-danger { background: transparent; border: 1px solid #3a2020; color: var(--err); }
+.btn-danger:hover { border-color: var(--err); }
+.btn-ok { background: transparent; border: 1px solid #1a3a2a; color: var(--ok); }
+.btn-ok:hover { border-color: var(--ok); }
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* PSK input */
+.psk-wrap { position: relative; flex: 1; }
+.psk-wrap input { padding-right: 36px; }
+.psk-eye {
+  position: absolute;
+  right: 8px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  color: var(--muted); cursor: pointer;
+  font-size: 14px; padding: 2px;
+  line-height: 1;
+}
+.psk-eye:hover { color: var(--accent); }
+
+/* Inject raw */
+.inject-prefix {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--accent-dim);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
+.inject-preview {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 10px;
+  min-height: 32px;
+  word-break: break-all;
+}
+
+.inject-preview .prefix { color: var(--accent); }
+
+/* Saved payloads */
+.payload-list { margin-bottom: 12px; }
+
+.payload-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.payload-name {
+  flex: 1;
+  font-size: 14px;
+  font-family: var(--mono);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.payload-cmds {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Serial monitor */
+#serial-output {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ok);
+  height: 420px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.7;
+}
+
+/* Command history */
+.history-item {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.history-item:last-child { border-bottom: none; }
+.history-cmd { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-time { color: var(--muted); flex-shrink: 0; font-size: 14px; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  max-width: 300px;
+  z-index: 200;
+}
+
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast.ok  { border-color: var(--ok);  color: var(--ok); }
+#toast.err { border-color: var(--err); color: var(--err); }
+#toast.warn{ border-color: var(--warn); color: var(--warn); }
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  body { flex-direction: column; overflow: visible; }
+
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+  }
+
+  #sidebar.open { transform: translateX(0); }
+  #overlay.show { display: block; }
+
+  #mobile-header { display: flex; }
+
+  #main { overflow-y: visible; }
+
+  .page { padding: 16px; }
+
+  .slider-row {
+    grid-template-columns: 90px 1fr 44px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar overlay (mobile) -->
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <div class="sidebar-logo">
+    <img src="logo.png" alt="MIA">
+    <div class="sidebar-logo-text">
+      M.I.A.
+      <span>Mesh Injection Apparatus</span>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-item-top active" data-page="home" onclick="nav('home',this)">Home</div>
+    </div>
+
+    <div class="nav-section nav-group open" id="grp-inject">
+      <div class="nav-group-label" onclick="toggleGroup('grp-inject')">
+        Inject <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-children">
+        <div class="nav-item" data-page="inject-payloads" onclick="nav('inject-payloads',this)">Saved Payloads</div>
+        <div class="nav-item" data-page="inject-raw" onclick="nav('inject-raw',this)">Raw</div>
+      </div>
+    </div>
+
+    <div class="nav-section nav-group open" id="grp-settings">
+      <div class="nav-group-label" onclick="toggleGroup('grp-settings')">
+        Settings <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-children">
+        <div class="nav-item" data-page="settings-radio" onclick="nav('settings-radio',this)">Radio</div>
+        <div class="nav-item" data-page="settings-channel" onclick="nav('settings-channel',this)">Channel</div>
+        <div class="nav-item" data-page="settings-key" onclick="nav('settings-key',this)">Key</div>
+        <div class="nav-item" data-page="settings-wifi" onclick="nav('settings-wifi',this)">WiFi</div>
+        <div class="nav-item" data-page="settings-board" onclick="nav('settings-board',this)">Board Info</div>
+        <div class="nav-item" data-page="settings-defaults" onclick="nav('settings-defaults',this)">Defaults</div>
+      </div>
+    </div>
+
+    <div class="nav-section nav-group open" id="grp-serial">
+      <div class="nav-group-label" onclick="toggleGroup('grp-serial')">
+        Serial <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-children">
+        <div class="nav-item" data-page="serial-monitor" onclick="nav('serial-monitor',this)">Monitor</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-reboot" onclick="confirmReboot()">⟳ Reboot Device</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main">
+
+  <!-- Mobile header -->
+  <div id="mobile-header">
+    <button id="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-title" id="mobile-page-title">Home</span>
+    <span style="flex:1"></span>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="mobile-status">—</span>
+  </div>
+
+  <!-- ── Home ── -->
+  <div class="page active" id="page-home">
+    <div class="page-title">Status</div>
+
+    <div class="card">
+      <div class="card-label">Connection</div>
+      <div class="stat-row">
+        <span class="stat-key">Device</span>
+        <span class="stat-val" id="h-status">Connecting...</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">Uptime</span>
+        <span class="stat-val" id="h-uptime">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">Free Heap</span>
+        <span class="stat-val" id="h-heap">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Radio</div>
+      <div class="stat-row">
+        <span class="stat-key">Frequency</span>
+        <span class="stat-val" id="h-freq">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">Spread Factor</span>
+        <span class="stat-val" id="h-sf">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">Bandwidth</span>
+        <span class="stat-val" id="h-bw">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">TX Power</span>
+        <span class="stat-val" id="h-power">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Last Packet</div>
+      <div class="stat-row">
+        <span class="stat-key">Source</span>
+        <span class="stat-val" id="h-last-src">None yet</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">RSSI</span>
+        <span class="stat-val" id="h-last-rssi">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-key">SNR</span>
+        <span class="stat-val" id="h-last-snr">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Command History</div>
+      <div id="cmd-history">
+        <div style="color:var(--muted);font-size:12px;padding:8px 0">No commands fired yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Inject: Saved Payloads ── -->
+  <div class="page" id="page-inject-payloads">
+    <div class="page-title">Saved Payloads</div>
+
+    <div class="card">
+      <div class="card-label">Library</div>
+      <div class="payload-list" id="payload-list">
+        <div style="color:var(--muted);font-size:12px;padding:8px 0">No saved payloads. Add one below.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">New Payload</div>
+      <div class="form-row">
+        <label>Name</label>
+        <input type="text" id="new-payload-name" placeholder="e.g. Open Terminal">
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="inject-prefix" style="margin-bottom:6px">Commands (comma-separated DuckyScript)</div>
+        <textarea id="new-payload-cmds" rows="3"
+          placeholder="STRINGLN hello, DELAY 500, ALT F4"></textarea>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px">
+          Commands are sent with the <span style="color:var(--accent)">!mia:</span> prefix over the mesh.
+          Separate multiple commands with commas.
+        </div>
+      </div>
+      <div class="btn-row" style="justify-content:flex-start">
+        <button class="btn btn-primary" onclick="savePayload()">Save Payload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Inject: Raw ── -->
+  <div class="page" id="page-inject-raw">
+    <div class="page-title">Raw Inject</div>
+
+    <div class="card">
+      <div class="card-label">Command</div>
+      <div class="inject-prefix">!mia: &lt;your commands here&gt;</div>
+      <textarea id="raw-cmd" rows="3"
+        placeholder="STRINGLN hello world, DELAY 500, ENTER"
+        oninput="updatePreview()"></textarea>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">
+        Separate multiple DuckyScript commands with commas.
+        The <span style="color:var(--accent)">!mia:</span> prefix is added automatically.
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="card-label" style="margin-bottom:6px">Preview</div>
+        <div class="inject-preview" id="raw-preview">
+          <span class="prefix">!mia: </span><span id="preview-text" style="color:var(--muted)">your commands will appear here</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="document.getElementById('raw-cmd').value='';updatePreview()">Clear</button>
+        <button class="btn btn-ghost" onclick="saveAsPayload()">Save as Payload</button>
+        <button class="btn btn-primary" onclick="fireRaw()">Fire ⚡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Settings: Radio ── -->
+  <div class="page" id="page-settings-radio">
+    <div class="page-title">Radio Settings</div>
+
+    <div class="card">
+      <div class="card-label">Modulation</div>
+
+      <div class="slider-row">
+        <label>Spread Factor</label>
+        <input type="range" id="sf-slider" min="7" max="12" step="1" value="11"
+               oninput="sfVal.textContent=this.value">
+        <span class="slider-val" id="sfVal">11</span>
+      </div>
+
+      <div class="slider-row">
+        <label>TX Power</label>
+        <input type="range" id="power-slider" min="-9" max="22" step="1" value="22"
+               oninput="powerVal.textContent=this.value+'dBm'">
+        <span class="slider-val" id="powerVal">22dBm</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="loadRadio()">Refresh</button>
+        <button class="btn btn-primary" onclick="saveRadio()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Settings: Channel ── -->
+  <div class="page" id="page-settings-channel">
+    <div class="page-title">Channel Info</div>
+
+    <div class="card">
+      <div class="card-label">Current Parameters</div>
+      <div class="stat-row"><span class="stat-key">Frequency</span><span class="stat-val" id="c-freq">—</span></div>
+      <div class="stat-row"><span class="stat-key">Bandwidth</span><span class="stat-val" id="c-bw">—</span></div>
+      <div class="stat-row"><span class="stat-key">Spread Factor</span><span class="stat-val" id="c-sf">—</span></div>
+      <div class="stat-row"><span class="stat-key">Coding Rate</span><span class="stat-val" id="c-cr">—</span></div>
+      <div class="stat-row"><span class="stat-key">Sync Word</span><span class="stat-val">0x2B (Meshtastic)</span></div>
+      <div class="btn-row" style="justify-content:flex-start">
+        <button class="btn btn-ghost" onclick="loadChannel()">Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Settings: Key ── -->
+  <div class="page" id="page-settings-key">
+    <div class="page-title">Channel Key (PSK)</div>
+
+    <div class="card">
+      <div class="card-label">AES Key</div>
+      <div class="form-row">
+        <label>Key (base64)</label>
+        <div class="psk-wrap">
+          <input type="password" id="psk-input" placeholder="base64-encoded 16 or 32 bytes">
+          <button class="psk-eye" onclick="togglePsk()">👁</button>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px">
+        16 bytes = AES-128 · 32 bytes = AES-256. Must match the Meshtastic channel key exactly.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="loadPsk()">Load Current</button>
+        <button class="btn btn-ghost" onclick="genPsk(128)">Gen 128-bit</button>
+        <button class="btn btn-ghost" onclick="genPsk(256)">Gen 256-bit</button>
+        <button class="btn btn-primary" onclick="savePsk()">Apply Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Settings: WiFi ── -->
+  <div class="page" id="page-settings-wifi">
+    <div class="page-title">WiFi Access Point</div>
+
+    <div class="card">
+      <div class="card-label">AP Configuration</div>
+
+      <div class="form-row" style="margin-bottom:14px">
+        <label>AP Enabled</label>
+        <label class="toggle">
+          <input type="checkbox" id="ap-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label>SSID</label>
+        <input type="text" id="ssid-input" placeholder="AP network name">
+      </div>
+
+      <div class="form-row">
+        <label>Password</label>
+        <input type="password" id="ap-pass" placeholder="WPA2 password (leave blank to keep current)">
+      </div>
+
+      <div style="font-size:10px;color:var(--muted);margin-top:4px">
+        SSID and password changes require a reboot to take effect.
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="loadWifi()">Refresh</button>
+        <button class="btn btn-primary" onclick="saveWifi()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Settings: Board Info ── -->
+  <div class="page" id="page-settings-board">
+    <div class="page-title">Board Info</div>
+
+    <div class="card">
+      <div class="card-label">Device</div>
+      <div class="stat-row"><span class="stat-key">Firmware Version</span><span class="stat-val" id="b-version">—</span></div>
+      <div class="stat-row"><span class="stat-key">MAC Address</span><span class="stat-val" id="b-mac">—</span></div>
+      <div class="stat-row"><span class="stat-key">Uptime</span><span class="stat-val" id="b-uptime">—</span></div>
+      <div class="stat-row"><span class="stat-key">Free Heap</span><span class="stat-val" id="b-heap">—</span></div>
+      <div class="stat-row"><span class="stat-key">CPU Freq</span><span class="stat-val">240 MHz</span></div>
+      <div class="stat-row"><span class="stat-key">Flash</span><span class="stat-val">8 MB</span></div>
+      <div class="btn-row" style="justify-content:flex-start">
+        <button class="btn btn-ghost" onclick="loadBoard()">Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Settings: Defaults ── -->
+  <div class="page" id="page-settings-defaults">
+    <div class="page-title">Defaults</div>
+
+    <div class="card">
+      <div class="card-label">Saved Restore Point</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7">
+        <b style="color:var(--text)">Save current</b> snapshots all settings (radio, PSK, WiFi) as your personal defaults.<br>
+        <b style="color:var(--text)">Reset</b> restores those saved defaults, or compiled-in factory values if none have been saved.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="saveDefaults()">Save current as defaults</button>
+        <button class="btn btn-danger" onclick="resetDefaults()">Reset to defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Serial: Monitor ── -->
+  <div class="page" id="page-serial-monitor">
+    <div class="page-title">Serial Monitor</div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span class="card-label" style="margin-bottom:0">Output</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" onclick="clearMonitor()">Clear</button>
+          <button class="btn btn-ok" id="monitor-btn" onclick="toggleMonitor()">Start</button>
+        </div>
+      </div>
+      <div id="serial-output">Tap Start to stream live output...</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────
+let cmdHistory = [];
+let payloads = JSON.parse(localStorage.getItem('mia-payloads') || '[]');
+let monitorInterval = null;
+let isMonitoring = false;
+let lastPacket = {};
+
+// ── Toast ──────────────────────────────────────────────
+function toast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = '', 2800);
+}
+
+// ── API helpers ────────────────────────────────────────
+async function apiGet(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function apiPost(path, body) {
+  const r = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+// ── Sidebar / nav ──────────────────────────────────────
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+const pageTitles = {
+  'home': 'Home',
+  'inject-payloads': 'Saved Payloads',
+  'inject-raw': 'Raw Inject',
+  'settings-radio': 'Radio',
+  'settings-channel': 'Channel',
+  'settings-key': 'Key',
+  'settings-wifi': 'WiFi',
+  'settings-board': 'Board Info',
+  'settings-defaults': 'Defaults',
+  'serial-monitor': 'Monitor',
+};
+
+function nav(pageId, el) {
+  // hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // show target
+  const pg = document.getElementById('page-' + pageId);
+  if (pg) pg.classList.add('active');
+  // update nav active state
+  document.querySelectorAll('.nav-item, .nav-item-top').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // mobile
+  document.getElementById('mobile-page-title').textContent = pageTitles[pageId] || pageId;
+  closeSidebar();
+  // auto-load data for that page
+  if (pageId === 'home') loadHome();
+  else if (pageId === 'settings-radio') loadRadio();
+  else if (pageId === 'settings-channel') loadChannel();
+  else if (pageId === 'settings-key') loadPsk();
+  else if (pageId === 'settings-wifi') loadWifi();
+  else if (pageId === 'settings-board') loadBoard();
+  else if (pageId === 'inject-payloads') renderPayloads();
+}
+
+// ── Home ───────────────────────────────────────────────
+async function loadHome() {
+  try {
+    const d = await apiGet('/api/config');
+    document.getElementById('h-status').textContent = 'Online';
+    document.getElementById('h-status').className = 'stat-val ok';
+    document.getElementById('h-freq').textContent = d.frequency + ' MHz';
+    document.getElementById('h-sf').textContent = d.spreadFactor;
+    document.getElementById('h-bw').textContent = d.bandwidth + ' kHz';
+    document.getElementById('h-power').textContent = d.power + ' dBm';
+    document.getElementById('mobile-status').textContent = '● Online';
+  } catch(e) {
+    document.getElementById('h-status').textContent = 'Offline';
+    document.getElementById('h-status').className = 'stat-val err';
+    document.getElementById('mobile-status').textContent = '○ Offline';
+  }
+  try {
+    const b = await apiGet('/api/board');
+    document.getElementById('h-uptime').textContent = formatUptime(b.uptime);
+    document.getElementById('h-heap').textContent = (b.freeHeap / 1024).toFixed(1) + ' KB';
+  } catch(e) {}
+}
+
+function formatUptime(ms) {
+  if (!ms) return '—';
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}h ${m % 60}m`;
+  if (m > 0) return `${m}m ${s % 60}s`;
+  return `${s}s`;
+}
+
+function addHistory(cmd) {
+  const now = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  cmdHistory.unshift({ cmd, time: now });
+  if (cmdHistory.length > 10) cmdHistory.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('cmd-history');
+  if (!cmdHistory.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0">No commands fired yet.</div>';
+    return;
+  }
+  el.innerHTML = cmdHistory.map(h =>
+    `<div class="history-item">
+      <span class="history-cmd">!mia: ${h.cmd}</span>
+      <span class="history-time">${h.time}</span>
+    </div>`
+  ).join('');
+}
+
+// ── Radio ──────────────────────────────────────────────
+async function loadRadio() {
+  try {
+    const d = await apiGet('/api/config');
+    document.getElementById('sf-slider').value = d.spreadFactor;
+    document.getElementById('sfVal').textContent = d.spreadFactor;
+    document.getElementById('power-slider').value = d.power;
+    document.getElementById('powerVal').textContent = d.power + 'dBm';
+  } catch(e) { toast('Failed to load radio config', 'err'); }
+}
+
+async function saveRadio() {
+  try {
+    const sf = parseInt(document.getElementById('sf-slider').value);
+    const power = parseInt(document.getElementById('power-slider').value);
+    const d = await apiPost('/api/config', { spreadFactor: sf, power });
+    if (d.status === 'ok') toast('Radio settings applied');
+    else toast('Error applying settings', 'err');
+  } catch(e) { toast('Failed to save', 'err'); }
+}
+
+// ── Channel ────────────────────────────────────────────
+async function loadChannel() {
+  try {
+    const d = await apiGet('/api/config');
+    document.getElementById('c-freq').textContent = d.frequency + ' MHz';
+    document.getElementById('c-bw').textContent = d.bandwidth + ' kHz';
+    document.getElementById('c-sf').textContent = d.spreadFactor;
+    document.getElementById('c-cr').textContent = d.codingRate;
+  } catch(e) { toast('Failed to load channel info', 'err'); }
+}
+
+// ── PSK ────────────────────────────────────────────────
+async function loadPsk() {
+  try {
+    const d = await apiGet('/api/psk');
+    document.getElementById('psk-input').value = d.psk;
+    const bytes = atob(d.psk).length;
+    toast(`Loaded ${bytes * 8}-bit key`);
+  } catch(e) { toast('Failed to load PSK', 'err'); }
+}
+
+async function savePsk() {
+  const psk = document.getElementById('psk-input').value.trim();
+  if (!psk) { toast('Enter a key first', 'err'); return; }
+  try {
+    const d = await apiPost('/api/psk', { psk });
+    if (d.status === 'ok') {
+      const bytes = atob(psk).length;
+      toast(`${bytes * 8}-bit key applied`);
+    } else toast(d.error || 'Error', 'err');
+  } catch(e) { toast('Failed to apply key', 'err'); }
+}
+
+function genPsk(bits) {
+  const bytes = new Uint8Array(bits / 8);
+  crypto.getRandomValues(bytes);
+  const b64 = btoa(String.fromCharCode(...bytes));
+  document.getElementById('psk-input').value = b64;
+  toast(`Generated ${bits}-bit key — click Apply Key to save`, 'warn');
+}
+
+function togglePsk() {
+  const f = document.getElementById('psk-input');
+  f.type = f.type === 'password' ? 'text' : 'password';
+}
+
+// ── WiFi ───────────────────────────────────────────────
+async function loadWifi() {
+  try {
+    const d = await apiGet('/api/wifi');
+    document.getElementById('ap-toggle').checked = d.enabled;
+    document.getElementById('ssid-input').value = d.ssid || '';
+  } catch(e) { toast('Failed to load WiFi config', 'err'); }
+}
+
+async function saveWifi() {
+  const enabled = document.getElementById('ap-toggle').checked;
+  const ssid = document.getElementById('ssid-input').value.trim();
+  const password = document.getElementById('ap-pass').value;
+  const body = { enabled };
+  if (ssid) body.ssid = ssid;
+  if (password) body.password = password;
+  try {
+    const d = await apiPost('/api/wifi', body);
+    if (d.status === 'ok') toast('WiFi saved — reboot for SSID/password to take effect', 'warn');
+    else toast('Error', 'err');
+  } catch(e) { toast('Failed to save WiFi', 'err'); }
+}
+
+// ── Board info ─────────────────────────────────────────
+async function loadBoard() {
+  try {
+    const d = await apiGet('/api/board');
+    document.getElementById('b-version').textContent = d.version || '—';
+    document.getElementById('b-mac').textContent = d.mac || '—';
+    document.getElementById('b-uptime').textContent = formatUptime(d.uptime);
+    document.getElementById('b-heap').textContent = d.freeHeap ? (d.freeHeap / 1024).toFixed(1) + ' KB' : '—';
+  } catch(e) { toast('Failed to load board info', 'err'); }
+}
+
+// ── Defaults ───────────────────────────────────────────
+async function saveDefaults() {
+  try {
+    const d = await apiPost('/api/defaults', { action: 'save' });
+    if (d.status === 'ok') toast('Current config saved as defaults');
+    else toast('Error', 'err');
+  } catch(e) { toast('Failed', 'err'); }
+}
+
+async function resetDefaults() {
+  if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
+  try {
+    const d = await apiPost('/api/defaults', { action: 'reset' });
+    if (d.status === 'ok') {
+      toast('Reset to defaults — reboot to apply', 'warn');
+      await loadRadio();
+    } else toast('Error', 'err');
+  } catch(e) { toast('Failed', 'err'); }
+}
+
+// ── Reboot ─────────────────────────────────────────────
+async function confirmReboot() {
+  if (!confirm('Reboot the device?')) return;
+  try {
+    await apiPost('/api/reboot', {});
+    toast('Rebooting...', 'warn');
+  } catch(e) {
+    // device will disconnect, that's expected
+    toast('Rebooting...', 'warn');
+  }
+}
+
+// ── Inject ─────────────────────────────────────────────
+function updatePreview() {
+  const cmd = document.getElementById('raw-cmd').value.trim();
+  document.getElementById('preview-text').textContent = cmd || 'your commands will appear here';
+  document.getElementById('preview-text').style.color = cmd ? 'var(--text)' : 'var(--muted)';
+}
+
+async function fireRaw() {
+  const cmd = document.getElementById('raw-cmd').value.trim();
+  if (!cmd) { toast('Enter a command first', 'err'); return; }
+  try {
+    const d = await apiPost('/api/inject', { command: `!mia: ${cmd}` });
+    if (d.status === 'ok') {
+      addHistory(cmd);
+      toast('Command fired ⚡');
+    } else toast(d.error || 'Error', 'err');
+  } catch(e) { toast('Failed to send command', 'err'); }
+}
+
+function saveAsPayload() {
+  const cmd = document.getElementById('raw-cmd').value.trim();
+  if (!cmd) { toast('Enter a command first', 'err'); return; }
+  const name = prompt('Name for this payload:');
+  if (!name) return;
+  payloads.push({ name, cmd, created: Date.now() });
+  localStorage.setItem('mia-payloads', JSON.stringify(payloads));
+  toast(`Saved as "${name}"`);
+}
+
+// ── Saved payloads ─────────────────────────────────────
+function renderPayloads() {
+  const el = document.getElementById('payload-list');
+  if (!payloads.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0">No saved payloads. Add one below.</div>';
+    return;
+  }
+  el.innerHTML = payloads.map((p, i) =>
+    `<div class="payload-item">
+      <div style="flex:1;min-width:0">
+        <div class="payload-name">${p.name}</div>
+        <div class="payload-cmds">${p.cmd}</div>
+      </div>
+      <button class="btn btn-ok" style="padding:5px 10px;font-size:10px" onclick="firePayload(${i})">Fire</button>
+      <button class="btn btn-danger" style="padding:5px 8px;font-size:10px" onclick="deletePayload(${i})">✕</button>
+    </div>`
+  ).join('');
+}
+
+function savePayload() {
+  const name = document.getElementById('new-payload-name').value.trim();
+  const cmd = document.getElementById('new-payload-cmds').value.trim();
+  if (!name) { toast('Enter a name', 'err'); return; }
+  if (!cmd) { toast('Enter at least one command', 'err'); return; }
+  payloads.push({ name, cmd, created: Date.now() });
+  localStorage.setItem('mia-payloads', JSON.stringify(payloads));
+  document.getElementById('new-payload-name').value = '';
+  document.getElementById('new-payload-cmds').value = '';
+  renderPayloads();
+  toast(`Payload "${name}" saved`);
+}
+
+async function firePayload(i) {
+  const p = payloads[i];
+  try {
+    const d = await apiPost('/api/inject', { command: `!mia: ${p.cmd}` });
+    if (d.status === 'ok') {
+      addHistory(p.cmd);
+      toast(`"${p.name}" fired ⚡`);
+    } else toast(d.error || 'Error', 'err');
+  } catch(e) { toast('Failed to send', 'err'); }
+}
+
+function deletePayload(i) {
+  const name = payloads[i].name;
+  payloads.splice(i, 1);
+  localStorage.setItem('mia-payloads', JSON.stringify(payloads));
+  renderPayloads();
+  toast(`"${name}" deleted`);
+}
+
+// ── Serial Monitor ─────────────────────────────────────
+function toggleMonitor() {
+  if (isMonitoring) stopMonitor();
+  else startMonitor();
+}
+
+function startMonitor() {
+  isMonitoring = true;
+  document.getElementById('monitor-btn').textContent = 'Stop';
+  document.getElementById('monitor-btn').className = 'btn btn-danger';
+  monitorInterval = setInterval(pollSerial, 1000);
+  toast('Monitor started');
+}
+
+function stopMonitor() {
+  isMonitoring = false;
+  clearInterval(monitorInterval);
+  document.getElementById('monitor-btn').textContent = 'Start';
+  document.getElementById('monitor-btn').className = 'btn btn-ok';
+  toast('Monitor stopped');
+}
+
+async function pollSerial() {
+  try {
+    const d = await apiGet('/api/serial');
+    if (d.data && d.data.length) {
+      const out = document.getElementById('serial-output');
+      out.textContent += d.data;
+      out.scrollTop = out.scrollHeight;
+    }
+  } catch(e) {}
+}
+
+function clearMonitor() {
+  document.getElementById('serial-output').textContent = '';
+}
+
+// ── Boot ───────────────────────────────────────────────
+window.addEventListener('load', () => {
+  loadHome();
+  renderPayloads();
+  // auto-poll home every 15s
+  setInterval(() => {
+    const homeActive = document.getElementById('page-home').classList.contains('active');
+    if (homeActive) loadHome();
+  }, 15000);
+});
+</script>
+</body>
+</html>

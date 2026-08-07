@@ -3,6 +3,15 @@
 All notable changes to MIA will be documented in this file.
 
 
+## [v0.8.0]
+- Added web dashboard (index.html served from LittleFS over WiFi AP) —
+  radio config, PSK, WiFi settings, saved payloads, serial monitor, board info
+- Added mia-cli.py — Metasploit-style serial CLI with get/set/gen/defaults/monitor
+- Added LittleFS filesystem support to both board environments
+- Added save_defaults/reset_defaults commands (serial + web)
+- Added factory reset with user-defined restore point
+
+
 ## [v0.7.1]
 - Added NVS-backed persistence (Preferences library) for Radio config
   (frequency, bandwidth, spread factor, coding rate, power), Crypto's
