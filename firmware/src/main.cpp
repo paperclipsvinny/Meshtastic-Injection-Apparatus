@@ -59,7 +59,7 @@ void setup() {
 
     //serial API start
     serialApi.begin(&radio, &wifiConfig, &webApi, &crypto);
-    webApi.begin(&radio, &crypto, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
+    webApi.begin(&radio, &crypto, &wifiConfig, wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
     Logger::rawln("Serial API loaded.");
 
     if (wifiConfig.apEnabled) {

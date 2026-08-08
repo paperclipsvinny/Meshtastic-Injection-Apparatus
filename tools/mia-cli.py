@@ -197,6 +197,33 @@ Set a value on the device. Changes persist across reboots.
             resp = self.send({"cmd": "set_wifi", "password": value})
             if resp:
                 print(f"[+] Password updated — {resp.get('status')}")
+        
+        elif sub == "freq":
+            try:
+                freq = float(value)
+                resp = self.send({"cmd": "set_config", "frequency": freq})
+                if resp:
+                    print(f"[+] Frequency set to {freq} MHz — {resp.get('status')}")
+            except ValueError:
+                print("[-] Usage: set freq <MHz>")
+
+        elif sub == "bw":
+            try:
+                bw = float(value)
+                resp = self.send({"cmd": "set_config", "bandwidth": bw})
+                if resp:
+                    print(f"[+] Bandwidth set to {bw} kHz — {resp.get('status')}")
+            except ValueError:
+                print("[-] Usage: set bw <kHz>")
+
+        elif sub == "cr":
+            try:
+                cr = int(value)
+                resp = self.send({"cmd": "set_config", "codingRate": cr})
+                if resp:
+                    print(f"[+] Coding rate set to {cr} — {resp.get('status')}")
+            except ValueError:
+                print("[-] Usage: set cr <5-8>")
 
         elif sub == "wifi":
             if value.lower() == "on":
@@ -299,6 +326,9 @@ Settings (for 'set'):
 ────────────────────────────────────────
   sf <7-12>          spread factor
   power <dBm>        TX power (-9 to 22)
+  freq <MHz>         frequency (e.g. 906.875)
+  bw <kHz>           bandwidth (e.g. 250.0)
+  cr <5-8>           coding rate
   psk <base64>       AES channel key
   ssid <name>        WiFi AP name
   password <pass>    WiFi AP password

@@ -58,6 +58,10 @@ public:
 
     bool transmit(const uint8_t* data, size_t len);
 
+    bool setFrequency(float newFreq);
+    bool setBandwidth(float newBw);
+    bool setCodingRate(uint8_t newCr);
+
 private:
     static void IRAM_ATTR setRxFlag(); //must stay static: used as a raw interrupt callback
     Preferences prefs;

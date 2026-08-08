@@ -5,6 +5,7 @@
 #include <LittleFS.h>
 #include "Logger.h" 
 #include "HID.h"
+#include "mbedtls/base64.h"
 
 
 static AsyncWebServer server(80);
@@ -12,7 +13,7 @@ Radio* WebApi::radioRef = nullptr;
 Crypto* WebApi::cryptoRef = nullptr;
 WifiConfig* WebApi::wifiConfigRef = nullptr;
 
-void WebApi::begin(Radio* radio, Crypto* crypto, const char* apSsid, const char* apPassword) {
+void WebApi::begin(Radio* radio, Crypto* crypto, WifiConfig* wifi, const char* apSsid, const char* apPassword) {
     radioRef = radio;
     cryptoRef = crypto;
     wifiConfigRef = wifi;
@@ -50,7 +51,13 @@ void WebApi::begin(Radio* radio, Crypto* crypto, const char* apSsid, const char*
                 ok &= radioRef->setSpreadFactor(doc["spreadFactor"]);
             if (doc["power"].is<int>())
                 ok &= radioRef->setPower(doc["power"]);
-
+            if (doc["frequency"].is<float>())
+                ok &= radioRef->setFrequency(doc["frequency"]);
+            if (doc["bandwidth"].is<float>())
+                ok &= radioRef->setBandwidth(doc["bandwidth"]);
+            if (doc["codingRate"].is<int>())
+                ok &= radioRef->setCodingRate(doc["codingRate"]);
+            
             request->send(ok ? 200 : 400, "application/json",
                           ok ? "{\"status\":\"ok\"}" : "{\"status\":\"error\"}");
         }
@@ -73,13 +80,18 @@ server.on("/api/inject/fire", HTTP_POST,
             return;
         }
         const char* cmd = doc["command"] | "";
-        if (strlen(cmd) == 0) {
-            request->send(400, "application/json", "{\"error\":\"missing command\"}");
-            return;
-        }
-        // strip !mia: prefix if present
-        if (strncmp(cmd, "!mia: ", 6) == 0) cmd += 6;
-        HID::executeCommands(cmd);
+            if (strlen(cmd) == 0) {
+                request->send(400, "application/json", "{\"error\":\"missing command\"}");
+                return;
+            }
+            // copy to mutable buffer since HID::executeCommands expects char*
+            char cmdBuf[256];
+            strncpy(cmdBuf, cmd, sizeof(cmdBuf) - 1);
+            cmdBuf[sizeof(cmdBuf) - 1] = '\0';
+            // strip !mia: prefix if present
+            char* cmdPtr = cmdBuf;
+            if (strncmp(cmdPtr, "!mia: ", 6) == 0) cmdPtr += 6;
+            HID::executeCommands(cmdPtr);
         request->send(200, "application/json", "{\"status\":\"ok\"}");
     }
 );

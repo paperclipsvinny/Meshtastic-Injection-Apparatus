@@ -112,8 +112,38 @@ bool Radio::setPower(int8_t newPower) {
 }
 
 bool Radio::transmit(const uint8_t* data, size_t len) {
-    objectSX1262.clearIrqFlags();
+    objectSX1262.clearIrqFlags(RADIOLIB_SX126X_IRQ_ALL);
     int state = objectSX1262.transmit(data, len);
     objectSX1262.startReceive(); // return to RX after TX
     return state == RADIOLIB_ERR_NONE;
+}
+
+bool Radio::setFrequency(float newFreq) {
+    int state = objectSX1262.setFrequency(newFreq);
+    if (state == RADIOLIB_ERR_NONE) {
+        freq = newFreq;
+        prefs.putFloat("freq", freq);
+        return true;
+    }
+    return false;
+}
+
+bool Radio::setBandwidth(float newBw) {
+    int state = objectSX1262.setBandwidth(newBw);
+    if (state == RADIOLIB_ERR_NONE) {
+        bandwidth = newBw;
+        prefs.putFloat("bw", bandwidth);
+        return true;
+    }
+    return false;
+}
+
+bool Radio::setCodingRate(uint8_t newCr) {
+    int state = objectSX1262.setCodingRate(newCr);
+    if (state == RADIOLIB_ERR_NONE) {
+        cr = newCr;
+        prefs.putUChar("cr", cr);
+        return true;
+    }
+    return false;
 }

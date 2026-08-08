@@ -2,6 +2,17 @@
 
 All notable changes to MIA will be documented in this file.
 
+## [v0.9.0]
+- Added setFrequency(), setBandwidth(), setCodingRate() to Radio — all radio
+  parameters now settable at runtime without reflashing
+- Extended set_config (serial + web) to accept frequency, bandwidth, codingRate
+- Added set freq/bw/cr to mia-cli.py
+- Added WebApi inject endpoints: /api/inject/fire, /api/inject/transmit,
+  /api/inject/upload, /api/inject/payloads, /api/inject/payload (DELETE)
+- Added /api/board, /api/reboot, /api/psk, /api/wifi, /api/defaults to WebApi
+- Full documentation suite: docs/ structure with getting-started, firmware,
+  hardware, meshtastic-integration, security, contributing, faq
+- Updated ARCHITECTURE.md, README.md with credits (Loki, EvilCrowRF)
 
 ## [v0.8.0]
 - Added web dashboard (index.html served from LittleFS over WiFi AP) —

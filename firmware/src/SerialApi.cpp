@@ -48,17 +48,22 @@ void SerialApi::processCommand(const String& line) {
         serializeJson(resp, Serial);
         Serial.println();
     }
+    
     else if (strcmp(cmd, "set_config") == 0) {
-        bool ok = true;
+    bool ok = true;
 
-        if (doc["spreadFactor"].is<int>()) {
-            ok &= radioRef->setSpreadFactor(doc["spreadFactor"]);
-        }
-        if (doc["power"].is<int>()) {
-            ok &= radioRef->setPower(doc["power"]);
-        }
+    if (doc["spreadFactor"].is<int>())
+        ok &= radioRef->setSpreadFactor(doc["spreadFactor"]);
+    if (doc["power"].is<int>())
+        ok &= radioRef->setPower(doc["power"]);
+    if (doc["frequency"].is<float>())
+        ok &= radioRef->setFrequency(doc["frequency"]);
+    if (doc["bandwidth"].is<float>())
+        ok &= radioRef->setBandwidth(doc["bandwidth"]);
+    if (doc["codingRate"].is<int>())
+        ok &= radioRef->setCodingRate(doc["codingRate"]);
 
-        Serial.println(ok ? "{\"status\":\"ok\"}" : "{\"status\":\"error\"}");
+    Serial.println(ok ? "{\"status\":\"ok\"}" : "{\"status\":\"error\"}");
     }
 
     else if (strcmp(cmd, "get_wifi") == 0) {
