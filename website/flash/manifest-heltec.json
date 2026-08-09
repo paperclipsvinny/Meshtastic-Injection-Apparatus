@@ -1,0 +1,15 @@
+{
+  "name": "MIA Firmware",
+  "version": "1.0.0",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        { "path": "https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus/releases/download/firmware-v1.0.0/bootloader.bin", "offset": 0 },
+        { "path": "https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus/releases/download/firmware-v1.0.0/partitions.bin", "offset": 40960 },
+        { "path": "https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus/releases/download/firmware-v1.0.0/firmware.bin", "offset": 65536 }
+      ]
+    }
+  ]
+}
