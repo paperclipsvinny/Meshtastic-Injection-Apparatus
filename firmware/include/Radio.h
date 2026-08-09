@@ -3,7 +3,16 @@
 #include <RadioLib.h>
 #include <Preferences.h>
 
-#ifdef MIA_PCB
+#ifdef LILYGO_T3S3
+    // LilyGo T3-S3 SX1262 pins
+    #define LORA_CS    7
+    #define LORA_DIO1  33
+    #define LORA_RST   8
+    #define LORA_BUSY  34
+    #define LORA_MISO  3
+    #define LORA_MOSI  6
+    #define LORA_SCK   5
+#elif defined(MIA_PCB)
     // MIA PCB v1 pins (E22-900M30S)
     #define LORA_CS    8
     #define LORA_DIO1  14
@@ -12,16 +21,15 @@
     #define LORA_MISO  11
     #define LORA_MOSI  10
     #define LORA_SCK   9
-
 #else
-    // Heltec V3 LoRa Pins
-    #define LORA_CS 8
-    #define LORA_DIO1 14    
-    #define LORA_RST 12
-    #define LORA_BUSY 13
-    #define LORA_MISO 11
-    #define LORA_MOSI 10
-    #define LORA_SCK 9
+    // Heltec V3 LoRa Pins (default)
+    #define LORA_CS    8
+    #define LORA_DIO1  14
+    #define LORA_RST   12
+    #define LORA_BUSY  13
+    #define LORA_MISO  11
+    #define LORA_MOSI  10
+    #define LORA_SCK   9
 #endif
 
 //MESHTASTIC RADIO PARAMETERS 
@@ -37,37 +45,35 @@
 
 class Radio{
 public:
-    bool begin();
-    void startReceive();
-    float getRSSI();
-    float getSNR();
-    uint16_t getIrqFlags();
-    bool packetAvailable();
-    int receivePacket(uint8_t* buffer, size_t bufferSize, size_t& outLen);
+bool begin();
+void startReceive();
+float getRSSI();
+float getSNR();
+uint16_t getIrqFlags();
+bool packetAvailable();
+int receivePacket(uint8_t* buffer, size_t bufferSize, size_t& outLen);
 
     //wrapping defines in member variables to be able to change them without reflashing
     //Note: defines are hardcoded in as defaults, can be changed over serial/web 
-    float getFrequency() const { return freq; }
-    float getBandwidth() const { return bandwidth; }
-    uint8_t getSpreadFactor() const { return sf; }
-    uint8_t getCodingRate() const { return cr; }
-    int8_t getPower() const { return power; }  
+float getFrequency() const { return freq; }
+float getBandwidth() const { return bandwidth; }
+uint8_t getSpreadFactor() const { return sf; }
+uint8_t getCodingRate() const { return cr; }
+int8_t getPower() const { return power; }  
 
-    bool setSpreadFactor(uint8_t newSf);
-    bool setPower(int8_t newPower);
-
-    bool transmit(const uint8_t* data, size_t len);
-
-    bool setFrequency(float newFreq);
-    bool setBandwidth(float newBw);
-    bool setCodingRate(uint8_t newCr);
+bool setSpreadFactor(uint8_t newSf);
+bool setPower(int8_t newPower);
+bool transmit(const uint8_t* data, size_t len);
+bool setFrequency(float newFreq);
+bool setBandwidth(float newBw);
+bool setCodingRate(uint8_t newCr);
 
 private:
-    static void IRAM_ATTR setRxFlag(); //must stay static: used as a raw interrupt callback
-    Preferences prefs;
-    float freq = LORA_FREQ;
-    float bandwidth = LORA_BAND;
-    uint8_t sf = LORA_SF;
-    uint8_t cr = LORA_CR;
-    int8_t power = LORA_POWER;
+static void IRAM_ATTR setRxFlag(); //must stay static: used as a raw interrupt callback
+Preferences prefs;
+float freq = LORA_FREQ;
+float bandwidth = LORA_BAND;
+uint8_t sf = LORA_SF;
+uint8_t cr = LORA_CR;
+int8_t power = LORA_POWER;
 };

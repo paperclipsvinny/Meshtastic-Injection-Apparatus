@@ -3,7 +3,16 @@
 #include <RadioLib.h>
 
 //New Radio Instance
-SPIClass spi(HSPI);
+#ifdef LILYGO_T3S3
+    SPIClass spi(FSPI);
+#else
+    #ifdef LILYGO_T3S3
+        SPIClass spi(FSPI);
+    #else
+    SPIClass spi(HSPI);
+    #endif
+#endif
+
 SX1262 objectSX1262 = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY, spi);
 
 //rx interrupt flag, set by radio, cleared by loop.

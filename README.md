@@ -6,8 +6,8 @@ A tool that combines HID injection with LoRa (Meshtastic) mesh networking for a 
 **This is a covert keystroke injection tool, designed for Red Teams, Penetration Testers, and authorized testing only. Do NOT use this tool on any systems which you have not been given express, explicit permission. I, the author, am not responsible for any damages which may incur from using this tool.** 
 
 ## Where is everything?
-For Firmware Architecture notes, check out [ARCHITECTURE.md](./ARCHITECTURE.md)
-Hardware Schematics and PCB manufacturing files can be found under [`/Hardware`](./Hardware) . 
+For Firmware Architecture notes, check out [ARCHITECTURE.md](./ARCHITECTURE.md). 
+Hardware, Schematics and PCB manufacturing files can be found under [`/Hardware`](./Hardware) . 
 
 For technical Documentation, head over to [DOCUMENTATION.md](docs/DOCUMENTATION.md), also available at [TheMIA.dev](https://themia.dev)
 
@@ -25,6 +25,6 @@ The software is NOT under any warranty, and the author will not be held responsi
 - **[Meshtastic](https://meshtastic.org)** — the mesh protocol MIA builds on
 - **[RadioLib](https://github.com/jgromes/RadioLib)** — LoRa radio abstraction
 - **[Loki](https://github.com/RocketGod-git/Meshtastic-Loki)** — Meshtastic fork that added HID 
-  support, the direct inspiration for MIA's command dispatch model
+  support, the direct inspiration for MIA's development. 
 - **[EvilCrowRF](https://github.com/joelsernamoreno/EvilCrowRF-V2)** — web dashboard 
-  design inspiration
+  design inspiration.   

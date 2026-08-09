@@ -2,6 +2,21 @@
 
 All notable changes to MIA will be documented in this file.
 
+## [1.0.0] - 2026-08-9
+
+### DEF CON 34 Release
+
+First public release of the Meshtastic Injection Apparatus firmware.
+
+### Added
+- USB HID keystroke injection via DuckyScript payloads
+- LoRa command-and-control over Meshtastic mesh network
+- AES-256 encrypted command channel with replay protection
+- Web API over WiFi AP for payload management and configuration
+- Serial API for direct device control
+- Web flasher for browser-based firmware installation (Chrome/Edge)
+- Support for Heltec WiFi LoRa 32 V3
+
 ## [v0.9.0]
 - Added setFrequency(), setBandwidth(), setCodingRate() to Radio — all radio
   parameters now settable at runtime without reflashing

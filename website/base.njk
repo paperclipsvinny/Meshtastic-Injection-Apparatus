@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — MIA</title>
+  <meta name="description" content="{{ description or 'Mesh Injection Apparatus — long-range keystroke injection over encrypted LoRa mesh' }}">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <img src="/assets/logo.png" alt="MIA" class="logo-img">
+        <span class="logo-text">M.I.A.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <a href="/">Home</a>
+        <a href="/docs/">Docs</a>
+        <a href="/flash/">Flash</a>
+        <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://card.saucedasecurity.com/" target="_blank" rel="noopener">Contact</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.getElementById('main-nav').classList.toggle('open')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    {{ content | safe }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>MIA — Mesh Injection Apparatus &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus">GitHub</a></p>
+      <p class="footer-sub">Presented at DEF CON 34 &nbsp;·&nbsp; <a href="https://card.saucedasecurity.com/">contact</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

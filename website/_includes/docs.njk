@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — MIA Docs</title>
+  <meta name="description" content="{{ description or 'MIA documentation' }}">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/docs.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="docs-body">
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <img src="/assets/logo.png" alt="MIA" class="logo-img">
+        <span class="logo-text">M.I.A.</span>
+      </a>
+      <nav class="main-nav">
+        <a href="/docs/" class="active">Docs</a>
+        <a href="/flash/">Flash</a>
+        <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <nav class="docs-nav">
+
+        <div class="docs-nav-section">
+          <span class="docs-nav-label">Getting Started</span>
+          <a href="/docs/getting-started/requirements/">Requirements</a>
+          <a href="/docs/getting-started/flashing/">Flashing</a>
+          <a href="/docs/getting-started/quickstart/">Quickstart</a>
+        </div>
+
+        <div class="docs-nav-section">
+          <span class="docs-nav-label">Hardware</span>
+          <a href="/docs/hardware/overview/">Overview</a>
+          <a href="/docs/hardware/heltec-v3/">Heltec V3</a>
+          <a href="/docs/hardware/mia-pcb/">MIA PCB</a>
+          <a href="/docs/hardware/bill-of-materials/">BOM</a>
+        </div>
+
+        <div class="docs-nav-section">
+          <span class="docs-nav-label">Firmware</span>
+          <a href="/docs/firmware/architecture/">Architecture</a>
+          <a href="/docs/firmware/building/">Building</a>
+          <a href="/docs/firmware/serial-api/">Serial API</a>
+          <a href="/docs/firmware/web-api/">Web API</a>
+          <a href="/docs/firmware/payloads/">Payloads</a>
+        </div>
+
+        <div class="docs-nav-section">
+          <span class="docs-nav-label">Meshtastic</span>
+          <a href="/docs/meshtastic-integration/overview/">Overview</a>
+          <a href="/docs/meshtastic-integration/links/">Resources</a>
+        </div>
+
+        <div class="docs-nav-section">
+          <span class="docs-nav-label">Security</span>
+          <a href="/docs/security/considerations/">Considerations</a>
+        </div>
+
+        <div class="docs-nav-section">
+          <span class="docs-nav-label">Contributing</span>
+          <a href="/docs/contributing/setup/">Setup</a>
+          <a href="/docs/contributing/code-style/">Code Style</a>
+        </div>
+
+        <div class="docs-nav-section">
+          <a href="/docs/faq/" style="font-weight:600">FAQ</a>
+        </div>
+
+      </nav>
+    </aside>
+
+    <article class="docs-content">
+      {{ content | safe }}
+    </article>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/docs.js"></script>
+</body>
+</html>

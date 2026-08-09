@@ -11,10 +11,16 @@
 #include "PacketParser.h" 
 
 
-//PIN DEFINITIONS
-#ifndef MIA_PCB
-    #define VEXT_ENABLE 36 //Voltage External (peripheral power) - Heltec only
-    #define LED 35 //Heltec only, no LED on MIA PCB
+// PIN DEFINITIONS — board specific
+#ifdef LILYGO_T3S3
+    #define LED 37
+    // no VEXT on T3-S3
+#elif defined(MIA_PCB)
+    // no LED, no VEXT on MIA PCB v1
+#else
+    // Heltec V3
+    #define LED 35
+    #define VEXT_ENABLE 36
 #endif
 
 //initial declaration for retransmitted packet variables 
@@ -35,11 +41,17 @@ Crypto crypto;
 
 
 void setup() {
-    #ifndef MIA_PCB
-        pinMode(VEXT_ENABLE, OUTPUT);
-        digitalWrite(VEXT_ENABLE, LOW);
-        StatusLED::begin(LED);
-    #endif
+    Serial.begin(115200);
+    delay(3000);  // give CDC time to connect
+    Serial.println("SETUP START");
+#ifdef VEXT_ENABLE
+    pinMode(VEXT_ENABLE, OUTPUT);
+    digitalWrite(VEXT_ENABLE, LOW);
+#endif
+
+#ifdef LED
+    StatusLED::begin(LED);
+#endif
 
     Serial.begin(115200);
     delay(2000); //wait for serial monitor init
@@ -49,9 +61,12 @@ void setup() {
     Logger::rawln("===============================");
     Logger::info("Booting...");
 
-    if (!radio.begin()){
-        Logger::rawln("Radio init failed - halting.");
-        while (true) delay(1000);
+    Logger::rawln("About to init radio...");
+    bool radioOk = radio.begin();
+    Logger::rawln(radioOk ? "Radio OK" : "Radio FAILED");
+    if (!radioOk){
+        Logger::rawln("Radio init failed - continuing anyway for diagnostics");
+        // don't halt - keep going so serial stays alive
     }
     
     //loads wifi config

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — MIA</title>
+  <meta name="description" content="{{ description or 'Mesh Injection Apparatus — wireless HID injection over encrypted LoRa mesh' }}">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <img src="/assets/logo.png" alt="MIA" class="logo-img">
+        <span class="logo-text">M.I.A.</span>
+      </a>
+      <nav class="main-nav">
+        <a href="/docs/" class="{{ 'active' if page.url.startsWith('/docs/') }}">Docs</a>
+        <a href="/flash/" class="{{ 'active' if page.url.startsWith('/flash/') }}">Flash</a>
+        <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+  </header>
+
+  <main>
+    {{ content | safe }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>MIA — Mesh Injection Apparatus &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus">GitHub</a></p>
+      <p class="footer-sub">Presented at DEF CON 34 &nbsp;·&nbsp; Built by <a href="https://github.com/paperclipsvinny">paperclipsvinny</a></p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

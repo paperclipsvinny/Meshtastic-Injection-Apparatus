@@ -1,0 +1,247 @@
+---
+layout: base.njk
+title: Flash MIA Firmware
+description: Flash MIA firmware to your device from the browser. No software install required.
+---
+
+<style>
+.flash-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+.flash-page h1 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.flash-page .lead {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.board-select {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.board-btn {
+  padding: 16px 20px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: var(--font-body);
+}
+
+.board-btn:hover {
+  border-color: var(--accent-light);
+}
+
+.board-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.board-btn-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.board-btn-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.board-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.flash-box {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.flash-box h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.flash-box p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+esp-web-install-button {
+  display: block;
+  margin: 0 auto;
+}
+
+esp-web-install-button::part(button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.15s;
+}
+
+esp-web-install-button::part(button):hover {
+  background: var(--accent-dark);
+}
+
+.browser-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+.browser-note strong {
+  color: var(--text);
+}
+
+.steps-list {
+  list-style: none;
+  counter-reset: steps;
+  margin: 0 0 32px;
+}
+
+.steps-list li {
+  counter-increment: steps;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.steps-list li:last-child {
+  border-bottom: none;
+}
+
+.steps-list li::before {
+  content: counter(steps);
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manual-flash {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.manual-flash h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.manual-flash p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+</style>
+
+<div class="flash-page">
+  <p class="section-label">Web Flasher</p>
+  <h1>Flash MIA Firmware</h1>
+  <p class="lead">
+    Flash MIA directly from your browser — no software install required.
+    Works in Chrome and Edge on Windows, macOS, and Linux.
+  </p>
+
+  <!-- Board selection -->
+  <div class="board-select">
+    <button class="board-btn selected" onclick="selectBoard('heltec')" id="btn-heltec">
+      <div class="board-btn-name">Heltec WiFi LoRa 32 V3</div>
+      <div class="board-btn-sub">✅ Tested · Recommended</div>
+    </button>
+    <button class="board-btn disabled" onclick="" id="btn-lilygo" title="Coming soon">
+      <div class="board-btn-name">LilyGo T3-S3</div>
+      <div class="board-btn-sub">🔧 Coming soon</div>
+    </button>
+    <button class="board-btn disabled" onclick="" id="btn-mia" title="Coming soon">
+      <div class="board-btn-name">MIA PCB v1</div>
+      <div class="board-btn-sub">🔧 Coming soon</div>
+    </button>
+  </div>
+
+  <!-- Steps -->
+  <ul class="steps-list">
+    <li>Connect your device to your computer via USB</li>
+    <li>Click <strong>Flash Firmware</strong> below and select your device's serial port when prompted</li>
+    <li>Wait for the flash to complete (~30 seconds)</li>
+    <li>Connect to the <code>Mesh Injection Apparatus</code> WiFi AP and open <code>http://192.168.4.1</code></li>
+  </ul>
+
+  <!-- Flash button -->
+  <div class="flash-box">
+    <h2>Heltec WiFi LoRa 32 V3</h2>
+    <p>Firmware v0.9.0 · Latest stable release</p>
+    <esp-web-install-button manifest="/flash/manifest-heltec.json">
+      <button slot="activate">⚡ Flash Firmware</button>
+    </esp-web-install-button>
+    <p class="browser-note">
+      Requires <strong>Chrome</strong> or <strong>Edge</strong>.
+      Firefox and Safari are not supported (Web Serial API).
+    </p>
+  </div>
+
+  <!-- Manual fallback -->
+  <div class="manual-flash">
+    <h3>Prefer the command line?</h3>
+    <p>Flash using PlatformIO from the source repo:</p>
+    <pre><code>git clone https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus
+cd Meshtastic-Injection-Apparatus/firmware
+pio run -e heltec_wifi_lora_32_V3 -t upload
+pio run -e heltec_wifi_lora_32_V3 -t uploadfs</code></pre>
+    <p>See the <a href="/docs/getting-started/flashing/">full flashing guide</a> for more options.</p>
+  </div>
+</div>
+
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
+<script>
+function selectBoard(board) {
+  document.querySelectorAll('.board-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('btn-' + board).classList.add('selected');
+}
+</script>

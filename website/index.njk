@@ -1,0 +1,584 @@
+---
+layout: base.njk
+title: MIA — Mesh Injection Apparatus
+description: A long-range keystroke injection implant that works over LoRa mesh networks like Meshtastic.
+---
+
+<style>
+/* ── Hero ── */
+.hero {
+  padding: 96px 0 80px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero-sub {
+  font-size: 17px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hero-img {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+}
+.hero-img img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+}
+
+/* ── What is MIA ── */
+.what-section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+.what-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.what-text h2 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.what-text p {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+.what-img {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+}
+.what-img img {
+  width: 100%;
+  object-fit: cover;
+}
+
+/* ── Attack chain ── */
+.chain-section {
+  padding: 80px 0;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-top: 48px;
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: calc(12.5% + 20px);
+  right: calc(12.5% + 20px);
+  height: 1px;
+  background: var(--border);
+}
+.step {
+  text-align: center;
+  position: relative;
+}
+.step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  border: 2px solid var(--accent-light);
+  color: var(--accent-dark);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  position: relative;
+  z-index: 1;
+  background: white;
+}
+.step h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.step p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── Features ── */
+.features-section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 48px;
+}
+.feature-card {
+  padding: 28px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.feature-card:hover {
+  border-color: var(--accent-light);
+  box-shadow: 0 4px 20px rgba(155,127,212,0.1);
+}
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-bg);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--accent-dark);
+}
+.feature-icon svg { width: 20px; height: 20px; }
+.feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.feature-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* ── Hardware ── */
+.hardware-section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+.hardware-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.hardware-inner.reverse { direction: rtl; }
+.hardware-inner.reverse > * { direction: ltr; }
+.hardware-text h2 { font-size: 28px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.01em; }
+.hardware-text p { font-size: 15px; color: var(--text-muted); line-height: 1.75; margin-bottom: 12px; }
+.hardware-img {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+}
+.hardware-img img { width: 100%; object-fit: cover; }
+.hardware-list { list-style: none; margin-top: 16px; }
+.hardware-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.hardware-list li:last-child { border-bottom: none; }
+.hardware-list li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── Code ── */
+.code-section {
+  padding: 80px 0;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.code-block {
+  background: #1a1a2e;
+  color: #e8e0f5;
+  border-radius: 10px;
+  padding: 28px 32px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.9;
+  overflow-x: auto;
+  margin-top: 32px;
+}
+.code-block .c { color: #5a5a7a; }
+.code-block .a { color: var(--accent-light); }
+.code-block .g { color: #7ecfa0; }
+
+/* ── CTA ── */
+.cta-section {
+  padding: 96px 0;
+  text-align: center;
+}
+.cta-section h2 { font-size: 36px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 16px; }
+.cta-section p { font-size: 17px; color: var(--text-muted); margin-bottom: 36px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hero-inner,
+  .what-inner,
+  .hardware-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hardware-inner.reverse { direction: ltr; }
+  .hero-img { order: -1; }
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .steps::before { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+.hero-logo {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-logo img {
+  width: 310px;
+  height: 310px;
+  object-fit: contain;
+}
+</style>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-logo">
+      <img src="/assets/logo.png" alt="MIA — Mesh Injection Apparatus">
+    </div>
+    <div class="hero-text">
+      <p class="hero-eyebrow">Open Source &nbsp;·&nbsp; ESP32-S3 &nbsp;·&nbsp; LoRa &nbsp;·&nbsp; AES-256</p>
+      <h1>Long-range keystroke injection over <em>encrypted mesh</em></h1>
+      <p class="hero-sub">
+        MIA is a USB implant that receives encrypted commands over a LoRa mesh network
+        and injects them as keystrokes on the target machine. No physical access required
+        after deployment.
+      </p>
+      <div class="hero-actions">
+        <a href="/flash/" class="btn btn-primary">Flash Now</a>
+        <a href="/docs/" class="btn btn-secondary">Documentation</a>
+        <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus" class="btn btn-secondary" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- What is the MIA -->
+<section class="what-section">
+  <div class="container">
+    <div class="what-inner">
+      <div class="what-text">
+        <p class="section-label">What is the MIA?</p>
+        <h2>A LoRa-based HID implant for red teamers</h2>
+        <p>
+          The Mesh Injection Apparatus is a keystroke injection implant built on the ESP32-S3.
+          It enumerates as a USB keyboard when plugged into a target machine, then sits silently
+          waiting for commands delivered over an encrypted LoRa mesh network.
+        </p>
+        <p>
+          Commands are sent from any standard Meshtastic node — a phone running the app,
+          a stock Heltec board, anything on the same channel. The mesh handles routing.
+          MIA handles execution. The attacker never needs to be in the same room, or even
+          the same building.
+        </p>
+        <p>
+          All traffic is AES-128 or AES-256 encrypted using Meshtastic's channel PSK system.
+          Private channels mean your commands are indistinguishable from normal mesh traffic
+          to anyone not holding the key.
+        </p>
+      </div>
+      <div class="what-img">
+        <img src="/assets/MIA-PCB-Front.jpg" alt="MIA PCB v1 front view">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Attack chain -->
+<section class="chain-section">
+  <div class="container">
+    <p class="section-label">How it works</p>
+    <h2 class="section-title">The attack chain</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Deploy the implant</h3>
+        <p>Plug MIA into the target via USB. It enumerates as a keyboard — no drivers, no prompts.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Send a command</h3>
+        <p>From any stock Meshtastic node, (or another MIA), send a message prefixed with <code>!mia:</code> on the shared channel.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Mesh delivers it</h3>
+        <p>The LoRa mesh routes the encrypted packet to the implant — through walls, across floors.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Target executes</h3>
+        <p>MIA decrypts using AES and injects the DuckyScript payload as USB keystrokes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+  <div class="container">
+    <p class="section-label">Features</p>
+    <h2 class="section-title">Built for the field</h2>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h3>AES-128 &amp; AES-256</h3>
+        <p>Full Meshtastic channel PSK support. Set any private channel key — 128-bit or 256-bit — and change it at runtime without reflashing.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M10.83 16.1a6 6 0 0 1 2.34 0M12 20h.01"/>
+          </svg>
+        </div>
+        <h3>Long-range LoRa</h3>
+        <p>SX1262 radio with configurable spread factor, bandwidth, and TX power. Works with any Meshtastic node on the same frequency.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+        </div>
+        <h3>DuckyScript</h3>
+        <p>Full USB HID keyboard injection. STRING, DELAY, GUI, CTRL, ALT, modifier combos — chain multiple commands in one packet.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M4.93 4.93a10 10 0 0 0 0 14.14M8.46 8.46a5 5 0 0 0 0 7.07"/>
+          </svg>
+        </div>
+        <h3>Web dashboard</h3>
+        <p>Configure radio parameters, PSK, and WiFi from any browser. Served directly from the device over its own WPA2-secured AP.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+          </svg>
+        </div>
+        <h3>Persistent config</h3>
+        <p>All settings survive reboots via NVS flash storage. Set your channel key once — it stays across power cycles.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+        </div>
+        <h3>Serial CLI</h3>
+        <p>Full Metasploit-style command interface over USB serial. Configure everything without opening a browser.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Hardware section 1 — PCB photo -->
+<section class="hardware-section">
+  <div class="container">
+    <div class="hardware-inner">
+      <div class="hardware-text">
+        <p class="section-label">Hardware</p>
+        <h2>Custom USB-A form factor</h2>
+        <p>
+          The MIA PCB v1 is a custom board designed to disappear. Built in a USB-A form factor,
+          it plugs directly into any USB-A port and looks like a flash drive sitting in a machine.
+        </p>
+        <ul class="hardware-list">
+          <li>ESP32-S3-WROOM-1 (N16R8) — 16MB flash, 8MB PSRAM</li>
+          <li>E22-900M30S — SX1262-based LoRa, 30dBm</li>
+          <li>AMS1117-3.3 LDO regulator</li>
+          <li>Hirose DM3AT MicroSD slot</li>
+          <li>USB-A connector — USB A Male connector or gold-plated PCB contacts</li>
+        </ul>
+        <div style="margin-top:24px">
+          <a href="/docs/hardware/mia-pcb/" class="btn btn-secondary">Hardware docs</a>
+        </div>
+      </div>
+      <div class="hardware-img">
+        <img src="/assets/MIA-Close-Up.jpeg" alt="MIA PCB close-up — USB connector and E22 radio module">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Code demo -->
+<section class="code-section">
+  <div class="container">
+    <p class="section-label">In practice</p>
+    <h2 class="section-title">One message, any target</h2>
+    <div class="code-block">
+<span class="c"># From the Meshtastic app on any node — same channel as the implant</span><br>
+<span class="a">!mia:</span> STRINGLN hello from the mesh<br><br>
+<span class="c"># The target machine types:</span><br>
+<span class="g">hello from the mesh</span><br><br>
+
+<span class="c"># Chain commands with commas:</span><br>
+<span class="a">!mia:</span> GUI r, DELAY 500, STRINGLN cmd, ENTER</span><br><br>
+
+<span class="c"># Or configure the implant over serial:</span><br>
+mia&gt; set psk ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef== <br>
+<span class="g">[+] 128-bit PSK applied — ok</span><br><br>
+
+mia&gt; get config<br>
+<span class="g">Frequency:     906.875 MHz</span><br>
+<span class="g">Spread Factor: 11</span><br>
+<span class="g">TX Power:      22 dBm</span><br>
+    </div>
+  </div>
+</section>
+
+<!-- Hardware section 2 — PCB render -->
+<section class="hardware-section" style="background:var(--bg-subtle);border-top:1px solid var(--border)">
+  
+
+
+
+
+
+
+
+  <div class="container">
+    <div class="hardware-inner reverse">
+      <div class="hardware-text">
+        <p class="section-label">Open source hardware</p>
+        <h2>KiCad schematics and gerbers included</h2>
+        <p>
+          The full hardware design — schematics, PCB layout, gerbers, and bill of materials —
+          is available in the repo. Order your own from any PCB fab.
+        </p>
+        <p>
+          MIA v1 has a known routing issue on the LoRa module. v2 is in development with
+          corrected MOSI/MISO routing, BOOT and RESET buttons, and a cleaner layout.
+        </p>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+          <a href="https://github.com/paperclipsvinny/Meshtastic-Injection-Apparatus/tree/main/hardware" class="btn btn-secondary" target="_blank">View hardware files</a>
+          <a href="/docs/hardware/bill-of-materials/" class="btn btn-secondary">Bill of Materials</a>
+        </div>
+      </div>
+      <div class="hardware-img">
+        <img src="/assets/PCBrender.png" alt="MIA PCB KiCad render">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Supported boards -->
+<section class="hardware-section">
+  <div class="container">
+    <p class="section-label">Supported hardware</p>
+    <h2 class="section-title">Works on what you have</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:40px">
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#eeffee;color:#2a7a2a">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3>Heltec WiFi LoRa 32 V3</h3>
+        <p>Reference platform. Tested and confirmed. Flash from the browser in 30 seconds.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fff8ee;color:#7a5a00">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+        </div>
+        <h3>MIA PCB v1</h3>
+        <p>Custom USB-A implant form factor. v2 in development with hardware fixes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fff8ee;color:#7a5a00">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+        </div>
+        <h3>LilyGo T3-S3</h3>
+        <p>Native USB HID over a single cable. Support in active development.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" style="background:var(--accent-bg);border-top:1px solid var(--border)">
+  <div class="container">
+    <p class="section-label">Get started</p>
+    <h2>Flash in 30 seconds</h2>
+    <p>No software install required. Plug in your device and flash from the browser.</p>
+    <div class="hero-actions" style="justify-content:center">
+      <a href="/flash/" class="btn btn-primary">Open Web Flasher</a>
+      <a href="/docs/getting-started/quickstart/" class="btn btn-secondary">Quickstart Guide</a>
+      <a href="https://card.saucedasecurity.com/" class="btn btn-secondary" target="_blank">Contact</a>
+    </div>
+  </div>
+</section>

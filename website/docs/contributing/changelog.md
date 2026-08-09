@@ -1,0 +1,138 @@
+# Changelog
+
+All notable changes to MIA will be documented in this file.
+
+## [v0.9.0]
+- Added setFrequency(), setBandwidth(), setCodingRate() to Radio — all radio
+  parameters now settable at runtime without reflashing
+- Extended set_config (serial + web) to accept frequency, bandwidth, codingRate
+- Added set freq/bw/cr to mia-cli.py
+- Added WebApi inject endpoints: /api/inject/fire, /api/inject/transmit,
+  /api/inject/upload, /api/inject/payloads, /api/inject/payload (DELETE)
+- Added /api/board, /api/reboot, /api/psk, /api/wifi, /api/defaults to WebApi
+- Full documentation suite: docs/ structure with getting-started, firmware,
+  hardware, meshtastic-integration, security, contributing, faq
+- Updated ARCHITECTURE.md, README.md with credits (Loki, EvilCrowRF)
+
+## [v0.8.0]
+- Added web dashboard (index.html served from LittleFS over WiFi AP) —
+  radio config, PSK, WiFi settings, saved payloads, serial monitor, board info
+- Added mia-cli.py — Metasploit-style serial CLI with get/set/gen/defaults/monitor
+- Added LittleFS filesystem support to both board environments
+- Added save_defaults/reset_defaults commands (serial + web)
+- Added factory reset with user-defined restore point
+
+
+## [v0.7.1]
+- Added NVS-backed persistence (Preferences library) for Radio config
+  (frequency, bandwidth, spread factor, coding rate, power), Crypto's
+  PSK, and WifiConfig (ssid, password, enabled).
+- All three load stored values on boot, falling back to compiled-in
+  defaults if nothing has been saved yet; every setter writes through
+  to flash immediately.
+- Verified via physical power cycle: spread factor, PSK, and SSID
+  changes all survive a full unplug/replug.
+
+
+## [v0.7.0]
+- Extended Crypto to support both 128-bit (AES-128) and 256-bit (AES-256)
+  PSKs, matching Meshtastic's private channel key lengths.
+- Added get_psk/set_psk to SerialApi and WebApi — PSK read/write as
+  base64, mirroring the existing config command pattern.
+- Verified end-to-end: created 128-bit and 256-bit private channels in
+  the Meshtastic app, confirmed MIA correctly decrypts real text messages
+  and dispatches !mia: commands on both.
+
+Note: MIA tracks a single active PSK at a time — switching channels
+requires re-sending set_psk with the new channel's key. Persistence for
+Radio config, WifiConfig, and PSK is still pending (separate step).
+
+## [v0.6.1]
+- Extracted packet header parsing and text-message extraction from main.cpp's
+  loop() into a new PacketParser module (PacketParser.h/.cpp), in order to 
+  cleanly prepare for private channel & custom PSK support (not broadcast).
+- PacketHeader struct groups dest/source/packetId/flags/channel.
+- extractTextMessage() now also returns the protobuf-reported text length
+  via an out-parameter, restoring the "Text length = N" log line.
+
+## [v0.6.0]
+- Added `WebApi` module — HTTP interface mirroring SerialApi's get_config/
+  set_config commands, served over the ESP32's own WiFi AP.
+- Added `WifiConfig` (`WifiConfig.h`) — holds AP SSID, password, and enabled
+  state. Not yet persisted; resets to defaults on reboot.
+- Extended `SerialApi` with `get_wifi` / `set_wifi` for reading and toggling
+  AP settings over serial.
+**Endpoints:**
+- `GET /api/config` — returns frequency, bandwidth, spread factor, coding
+  rate, power
+- `POST /api/config` — accepts spread factor and/or power; requires
+  `Content-Type: application/json`
+
+Note: `apEnabled` is temporarily defaulted to `true` in `WifiConfig.h` since
+live-start and persistence aren't implemented yet — both planned for the
+next release. AP currently broadcasts on every boot using the default
+SSID/password.
+
+
+## [v0.5.0]
+- Added `SerialApi` module (`SerialApi.h` / `SerialApi.cpp`) — JSON-based command
+  interface over USB serial for reading and modifying radio config at runtime.
+- Added bblanchon's ArduinoJson library to Plaform.ini's dependancies. 
+- Added `DOCUMENTATION.md` in `/docs` in order to note format for changing radio variables.
+- Added `MESHTASTIC-RESOURCES.md` to make a place for all Meshtastic Links and documentation.
+
+## [v0.4.0]
+-Moving towards changing radio variables over Serial (and eventually web).
+- Convert Radio class from static to instance-based methods, enabling runtime-editable radio config (spread factor, power)
+- Add getters/setters for radio frequency, bandwidth, spread factor, coding rate, and power
+- Rename internal SX1262 driver object to objectSX1262 to avoid naming collision with the new Radio instance 
+
+## [v0.3.3]
+-Introduced `StatusLED` module (`Status.LED` class), which is responsible for the status LED blink.
+-Notes: Currently hardcoded to blink three times on recieve.
+
+## [v0.3.2]
+-Introduced `Crypto` module (`Crypto.h` / `Crypto.cpp`) as the logic responsible for AES-CTR decryption. 
+**Crypto is now responsible for:**
+- Initializing the AES engine with a 128-bit key (`Crypto::begin(key)`)
+- Constructing the per-packet nonce from packet ID + source address, per Meshtastic's
+  CTR-mode scheme (`Crypto::buildNonce`, private)
+- Decrypting a packet's payload given its ciphertext, length, packet ID, and source
+  address (`Crypto::decrypt`)
+
+Note that the key value is still stored in Main. 
+
+## [v0.3.1]
+### Added
+- Introduced `Radio` module (`Radio.h` / `Radio.cpp`) as the dedicated interface for SX1262 radio communication.
+- Added a public hardware abstraction layer for:
+  - Radio initialization
+  - Packet reception
+  - Receive interrupt handling
+  - RSSI retrieval
+  - SNR retrieval
+  - IRQ flag access
+
+### Changed
+- Moved all LoRa hardware configuration, SPI initialization, and RadioLib setup out of `main.cpp`.
+- Replaced direct `radio` object access throughout the application with calls to the `Radio` interface.
+- Centralized LoRa configuration constants inside the radio module.
+
+### Internal
+- Reduced responsibility of `main.cpp`; it now coordinates application flow instead of managing radio hardware directly.
+- Continued migration toward a modular firmware architecture in preparation for additional subsystem extraction.
+
+##[v0.2.0]
+### Added
+- `Logger` class (`firmware/include/Logger.h`, `firmware/src/Logger.cpp`) — centralizes all serial output, replacing direct `Serial.print`/`println`/`printf` calls throughout `main.cpp`. No functional/output change; groundwork for future web-based logging.
+- `Version.h` with firmware version constant, printed on boot.
+- `HID` class (`firmware/include/HID.h`, `firmware/src/HID.cpp`) — extracts DuckyScript command parsing and USB keyboard execution from `main.cpp` into its own module, following the same pattern as `Logger`. No functional change beyond the fixes listed below.
+
+### Fixed
+- `Logger::raw(float)` was using the wrong format specifier (`%d` instead of `%f`), causing RSSI/SNR values to print as garbage (`-2147483648`) instead of correct decimal readings.
+- `upload_port` in `platformio.ini` was hardcoded to a Windows-style COM port; corrected for Linux (`/dev/ttyUSB0`).
+- `Keyboard.write()` was used alongside `Keyboard.press(modifier)` for CTRL/ALT/SHIFT/GUI combos, which caused the modifier key to remain logically "stuck" held after the command completed — `write()`'s internal key-translation interfered with the already-held modifier's state. Replaced `write()` with explicit `press()`+`release()` pairs for the combo'd key across all four modifier handlers, and added a `Keyboard.releaseAll()` safety-net call at the end of every command as insurance against future stuck-key regressions. Confirmed fixed via live testing (CTRL+T no longer sticks, opens a proper new tab).
+- Meshtastic automatically retransmits a message when it doesn't receive delivery confirmation (common with only two nodes on the mesh) — this caused the same command to be re-executed multiple times. Added packet ID + source deduplication in the receive path to skip re-execution of retransmitted copies of an already-handled command. Confirmed fixed via live testing (single execution per logical command, duplicates correctly logged and skipped).
+
+### Changed
+- Repository restructured into monorepo layout: `firmware/`, `hardware/`, `website/`, `docs/`, `examples/`. See tag `v0.2.0-restructure`.
